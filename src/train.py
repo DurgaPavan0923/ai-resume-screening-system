@@ -1,19 +1,22 @@
-import os
-import joblib
+import pandas as pd
+import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
-from src.preprocess import clean_text
+from sklearn.naive_bayes import MultinomialNB
 
-resume_folder = "data/resumes"
+data = pd.read_csv("data/job_roles.csv")
 
-resumes = []
-for file in os.listdir(resume_folder):
-    with open(os.path.join(resume_folder, file), 'r', encoding='utf-8') as f:
-        resumes.append(clean_text(f.read()))
+X = data["text"]
+y = data["role"]
 
 vectorizer = TfidfVectorizer()
-X = vectorizer.fit_transform(resumes)
 
-joblib.dump(vectorizer, "model/vectorizer.pkl")
-joblib.dump(X, "model/resume_vectors.pkl")
+X_vec = vectorizer.fit_transform(X)
 
-print("Model trained successfully!")
+model = MultinomialNB()
+
+model.fit(X_vec, y)
+
+pickle.dump(model, open("model/job_role_model.pkl", "wb"))
+pickle.dump(vectorizer, open("model/vectorizer.pkl", "wb"))
+
+print("Model trained successfully")
