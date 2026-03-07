@@ -1,6 +1,4 @@
-import pandas as pd
 import pickle
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 MODEL_PATH = "model/job_role_model.pkl"
 VEC_PATH = "model/vectorizer.pkl"
