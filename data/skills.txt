@@ -1,13 +1,25 @@
 python
 java
+c++
+sql
 machine learning
+deep learning
 nlp
 data analysis
+pandas
+numpy
+tensorflow
+pytorch
+scikit-learn
 react
-aws
+nodejs
 docker
 kubernetes
-spring boot
+aws
+flask
+django
+git
+linux
 html
 css
 javascript
