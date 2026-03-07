@@ -7,6 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from src.preprocess import preprocess_text
 from src.skill_extractor import load_skills, extract_skills
 from src.job_predictor import predict_role
+from src.pdf_parser import extract_text_from_pdf
 
 
 st.set_page_config(
@@ -17,7 +18,7 @@ st.set_page_config(
 
 st.title("🤖 AI Resume Screening & Job Match System")
 
-st.markdown("Automated resume screening using NLP and Machine Learning")
+st.markdown("Smart resume screening using NLP and Machine Learning")
 
 st.divider()
 
@@ -37,7 +38,7 @@ with col2:
 
     uploaded_files = st.file_uploader(
         "📂 Upload Resumes",
-        type=["txt"],
+        type=["txt", "pdf"],
         accept_multiple_files=True
     )
 
@@ -76,10 +77,20 @@ if st.button("🚀 Analyze Resumes"):
 
         resumes = []
         names = []
+        raw_texts = []
+
 
         for file in uploaded_files:
 
-            text = file.read().decode("utf-8")
+            if file.name.endswith(".pdf"):
+
+                text = extract_text_from_pdf(file)
+
+            else:
+
+                text = file.read().decode("utf-8")
+
+            raw_texts.append(text)
 
             clean = preprocess_text(text)
 
@@ -96,6 +107,7 @@ if st.button("🚀 Analyze Resumes"):
 
 
         results = []
+
 
         for i, resume in enumerate(resumes):
 
