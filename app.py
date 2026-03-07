@@ -10,35 +10,78 @@ from src.job_predictor import predict_role
 from src.pdf_parser import extract_text_from_pdf
 
 
+# ------------------ PAGE CONFIG ------------------
+
 st.set_page_config(
-    page_title="AI Resume Matcher",
+    page_title="AI Resume ATS",
     page_icon="🤖",
     layout="wide"
 )
 
-st.title("🤖 AI Resume Screening & Job Match System")
+# ------------------ CUSTOM CSS ------------------
 
-st.markdown("Smart resume screening using NLP and Machine Learning")
+st.markdown("""
+<style>
+
+.main-title{
+font-size:40px;
+font-weight:700;
+color:#2ecc71;
+}
+
+.card{
+background-color:#f8f9fa;
+padding:20px;
+border-radius:10px;
+box-shadow:0px 2px 8px rgba(0,0,0,0.1);
+}
+
+.rank-card{
+background-color:#ffffff;
+padding:15px;
+border-radius:10px;
+margin-bottom:10px;
+border-left:6px solid #2ecc71;
+}
+
+.skill-box{
+background:#ecf0f1;
+padding:8px 12px;
+border-radius:20px;
+display:inline-block;
+margin:4px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+# ------------------ HEADER ------------------
+
+st.markdown('<div class="main-title">🤖 AI Resume ATS Dashboard</div>', unsafe_allow_html=True)
+
+st.write("Automated Resume Screening using NLP + Machine Learning")
 
 st.divider()
 
 
-col1, col2 = st.columns([2,1])
+# ------------------ INPUT SECTION ------------------
 
+col1, col2 = st.columns([2,1])
 
 with col1:
 
     job_description = st.text_area(
-        "📄 Enter Job Description",
-        height=200
+        "📄 Paste Job Description",
+        height=200,
+        placeholder="Paste the job description here..."
     )
-
 
 with col2:
 
     uploaded_files = st.file_uploader(
         "📂 Upload Resumes",
-        type=["txt", "pdf"],
+        type=["pdf","txt"],
         accept_multiple_files=True
     )
 
@@ -46,15 +89,18 @@ with col2:
 skills_db = load_skills()
 
 
+# ------------------ KEYWORD EXTRACTION ------------------
+
 def extract_keywords(text):
 
-    vectorizer = TfidfVectorizer(stop_words="english", max_features=10)
+    vectorizer = TfidfVectorizer(stop_words="english", max_features=12)
 
     X = vectorizer.fit_transform([text])
 
     return vectorizer.get_feature_names_out()
 
 
+# ------------------ ANALYSIS BUTTON ------------------
 
 if st.button("🚀 Analyze Resumes"):
 
@@ -66,19 +112,39 @@ if st.button("🚀 Analyze Resumes"):
 
         keywords = extract_keywords(job_clean)
 
-        st.subheader("🔑 Important Keywords")
 
-        st.write(", ".join(keywords))
+        # ------------------ JOB INFO ------------------
 
-        st.subheader("🛠 Job Skills Detected")
+        st.subheader("🧾 Job Insights")
 
-        st.write(", ".join(job_skills))
+        colA, colB = st.columns(2)
 
+        with colA:
+
+            st.markdown("**🔑 Important Keywords**")
+
+            for k in keywords:
+
+                st.markdown(f'<span class="skill-box">{k}</span>', unsafe_allow_html=True)
+
+
+        with colB:
+
+            st.markdown("**🛠 Required Skills**")
+
+            for s in job_skills:
+
+                st.markdown(f'<span class="skill-box">{s}</span>', unsafe_allow_html=True)
+
+
+        st.divider()
+
+
+        # ------------------ READ RESUMES ------------------
 
         resumes = []
         names = []
-        raw_texts = []
-
+        raw_text = []
 
         for file in uploaded_files:
 
@@ -90,7 +156,7 @@ if st.button("🚀 Analyze Resumes"):
 
                 text = file.read().decode("utf-8")
 
-            raw_texts.append(text)
+            raw_text.append(text)
 
             clean = preprocess_text(text)
 
@@ -99,6 +165,8 @@ if st.button("🚀 Analyze Resumes"):
             names.append(file.name)
 
 
+        # ------------------ VECTORIZE ------------------
+
         vectorizer = TfidfVectorizer()
 
         vectors = vectorizer.fit_transform([job_clean] + resumes)
@@ -106,8 +174,9 @@ if st.button("🚀 Analyze Resumes"):
         similarity = cosine_similarity(vectors[0:1], vectors[1:]).flatten()
 
 
-        results = []
+        # ------------------ SCORING ------------------
 
+        results = []
 
         for i, resume in enumerate(resumes):
 
@@ -115,7 +184,7 @@ if st.button("🚀 Analyze Resumes"):
 
             skill_match = len(set(skills) & set(job_skills))
 
-            skill_score = skill_match / max(len(job_skills), 1)
+            skill_score = skill_match / max(len(job_skills),1)
 
             ats_score = (similarity[i]*0.6 + skill_score*0.4) * 100
 
@@ -123,36 +192,64 @@ if st.button("🚀 Analyze Resumes"):
 
             results.append({
                 "Resume": names[i],
-                "Match Score": round(ats_score,2),
-                "Predicted Role": role,
-                "Skills Found": ", ".join(skills)
+                "Score": round(ats_score,2),
+                "Role": role,
+                "Skills": skills,
+                "Text": raw_text[i]
             })
 
 
-        df = pd.DataFrame(results)
-
-        df = df.sort_values(by="Match Score", ascending=False)
-
-        st.subheader("🏆 Resume Ranking")
-
-        st.dataframe(df, use_container_width=True)
+        results = sorted(results, key=lambda x: x["Score"], reverse=True)
 
 
-        st.subheader("📊 Match Scores")
+        # ------------------ LEADERBOARD ------------------
 
-        for r in results:
+        st.subheader("🏆 Candidate Ranking")
 
-            st.write(f"**{r['Resume']}**")
+        for i,r in enumerate(results):
 
-            st.progress(r["Match Score"]/100)
+            st.markdown(f"""
+            <div class="rank-card">
 
-            st.write(f"Match Score: {r['Match Score']}%")
+            <b>#{i+1} {r['Resume']}</b><br>
+            Predicted Role: <b>{r['Role']}</b><br>
+            ATS Score: <b>{r['Score']}%</b>
 
-            st.write(f"Predicted Role: {r['Predicted Role']}")
+            </div>
+            """, unsafe_allow_html=True)
 
-            st.write("---")
+            st.progress(r["Score"]/100)
+
+
+            st.markdown("**Skills Found**")
+
+            for s in r["Skills"]:
+
+                st.markdown(f'<span class="skill-box">{s}</span>', unsafe_allow_html=True)
+
+
+            with st.expander("Preview Resume"):
+
+                st.write(r["Text"][:1500])
+
+            st.divider()
+
+
+        # ------------------ TABLE VIEW ------------------
+
+        st.subheader("📊 Ranking Table")
+
+        table = pd.DataFrame([
+            {
+                "Resume": r["Resume"],
+                "ATS Score": r["Score"],
+                "Predicted Role": r["Role"]
+            } for r in results
+        ])
+
+        st.dataframe(table, use_container_width=True)
 
 
     else:
 
-        st.warning("Please enter job description and upload resumes")
+        st.warning("Please upload resumes and enter job description.")
