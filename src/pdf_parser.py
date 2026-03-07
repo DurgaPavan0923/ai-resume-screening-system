@@ -1,7 +1,6 @@
 from pdfminer.high_level import extract_text
 import tempfile
 
-
 def extract_text_from_pdf(uploaded_file):
 
     with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
