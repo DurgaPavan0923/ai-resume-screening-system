@@ -1,12 +1,21 @@
 import nltk
-import string
+import re
 from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
-nltk.download('stopwords')
+nltk.download("punkt")
+nltk.download("stopwords")
 
-def clean_text(text):
+stop_words = set(stopwords.words("english"))
+
+def preprocess_text(text):
+
     text = text.lower()
-    text = text.translate(str.maketrans('', '', string.punctuation))
-    words = text.split()
-    words = [w for w in words if w not in stopwords.words('english')]
-    return " ".join(words)
+
+    text = re.sub(r'[^a-zA-Z ]', ' ', text)
+
+    tokens = word_tokenize(text)
+
+    tokens = [w for w in tokens if w not in stop_words]
+
+    return " ".join(tokens)
