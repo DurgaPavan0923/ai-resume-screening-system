@@ -1,71 +1,146 @@
 import streamlit as st
-import os
-import sys
 import pandas as pd
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-sys.path.append("src")
+from src.preprocess import preprocess_text
+from src.skill_extractor import load_skills, extract_skills
+from src.job_predictor import predict_role
 
-from preprocess import clean_text
-from skill_extractor import extract_skills
-from job_predictor import train_model, predict_role
 
-st.title("🚀 AI Resume Screening + Job Match System")
-
-# Train model (only once)
-if not os.path.exists("model/job_model.pkl"):
-    os.makedirs("model", exist_ok=True)
-    train_model()
-
-# Load skills
-with open("data/skills.txt", "r") as f:
-    skill_list = f.read().splitlines()
-
-job_desc = st.text_area("📄 Enter Job Description")
-
-uploaded_files = st.file_uploader(
-    "📂 Upload Resume (.txt)",
-    type=["txt"],
-    accept_multiple_files=True
+st.set_page_config(
+    page_title="AI Resume Matcher",
+    page_icon="🤖",
+    layout="wide"
 )
 
-if st.button("Analyze Resumes"):
+st.title("🤖 AI Resume Screening & Job Match System")
 
-    if not job_desc or not uploaded_files:
-        st.warning("Please provide job description and resumes.")
-    else:
+st.markdown("Automated resume screening using NLP and Machine Learning")
+
+st.divider()
+
+
+col1, col2 = st.columns([2,1])
+
+
+with col1:
+
+    job_description = st.text_area(
+        "📄 Enter Job Description",
+        height=200
+    )
+
+
+with col2:
+
+    uploaded_files = st.file_uploader(
+        "📂 Upload Resumes",
+        type=["txt"],
+        accept_multiple_files=True
+    )
+
+
+skills_db = load_skills()
+
+
+def extract_keywords(text):
+
+    vectorizer = TfidfVectorizer(stop_words="english", max_features=10)
+
+    X = vectorizer.fit_transform([text])
+
+    return vectorizer.get_feature_names_out()
+
+
+
+if st.button("🚀 Analyze Resumes"):
+
+    if job_description and uploaded_files:
+
+        job_clean = preprocess_text(job_description)
+
+        job_skills = extract_skills(job_clean, skills_db)
+
+        keywords = extract_keywords(job_clean)
+
+        st.subheader("🔑 Important Keywords")
+
+        st.write(", ".join(keywords))
+
+        st.subheader("🛠 Job Skills Detected")
+
+        st.write(", ".join(job_skills))
+
+
         resumes = []
         names = []
 
         for file in uploaded_files:
-            text = file.read().decode("utf-8")
-            cleaned = clean_text(text)
 
-            resumes.append(cleaned)
+            text = file.read().decode("utf-8")
+
+            clean = preprocess_text(text)
+
+            resumes.append(clean)
+
             names.append(file.name)
 
-            st.subheader(f"📌 {file.name}")
 
-            # Skill Extraction
-            skills = extract_skills(cleaned, skill_list)
-            st.write("**Extracted Skills:**", skills)
-
-            # Job Prediction
-            role = predict_role(cleaned)
-            st.write("**Predicted Job Role:**", role)
-
-            st.markdown("---")
-
-        # Ranking System
         vectorizer = TfidfVectorizer()
-        resume_vectors = vectorizer.fit_transform(resumes)
-        job_vector = vectorizer.transform([clean_text(job_desc)])
 
-        scores = cosine_similarity(job_vector, resume_vectors)[0]
-        ranked = sorted(zip(names, scores), key=lambda x: x[1], reverse=True)
+        vectors = vectorizer.fit_transform([job_clean] + resumes)
 
-        st.success("✅ Resume Ranking Completed")
+        similarity = cosine_similarity(vectors[0:1], vectors[1:]).flatten()
 
-        for name, score in ranked:
-            st.write(f"🏆 {name} → Match Score: {round(score*100,2)}%")
+
+        results = []
+
+        for i, resume in enumerate(resumes):
+
+            skills = extract_skills(resume, skills_db)
+
+            skill_match = len(set(skills) & set(job_skills))
+
+            skill_score = skill_match / max(len(job_skills), 1)
+
+            ats_score = (similarity[i]*0.6 + skill_score*0.4) * 100
+
+            role = predict_role(resume)
+
+            results.append({
+                "Resume": names[i],
+                "Match Score": round(ats_score,2),
+                "Predicted Role": role,
+                "Skills Found": ", ".join(skills)
+            })
+
+
+        df = pd.DataFrame(results)
+
+        df = df.sort_values(by="Match Score", ascending=False)
+
+        st.subheader("🏆 Resume Ranking")
+
+        st.dataframe(df, use_container_width=True)
+
+
+        st.subheader("📊 Match Scores")
+
+        for r in results:
+
+            st.write(f"**{r['Resume']}**")
+
+            st.progress(r["Match Score"]/100)
+
+            st.write(f"Match Score: {r['Match Score']}%")
+
+            st.write(f"Predicted Role: {r['Predicted Role']}")
+
+            st.write("---")
+
+
+    else:
+
+        st.warning("Please enter job description and upload resumes")
