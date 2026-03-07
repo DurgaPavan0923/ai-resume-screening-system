@@ -1,67 +1,127 @@
-# 🚀 AI Resume Screening & Job Match System
+# 🤖 AI Resume Screening & Job Match System
 
-An AI-powered intelligent recruitment assistant that automates resume screening using **Natural Language Processing (NLP)** and **Machine Learning**.
+![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python)
+![Machine Learning](https://img.shields.io/badge/Machine%20Learning-Scikit--Learn-orange?logo=scikit-learn)
+![NLP](https://img.shields.io/badge/NLP-NLTK-green)
+![Frontend](https://img.shields.io/badge/UI-Streamlit-red?logo=streamlit)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
-Built specifically for:
+An **AI-powered recruitment assistant** that automatically analyzes resumes and ranks candidates based on how well they match a given job description.
 
-- 🎓 Campus Placement Automation  
-- 🏢 HR Resume Shortlisting  
-- 🚀 Startup Hiring  
-- 🤖 AI-Based Recruitment Systems  
-
----
-
-## 📌 Project Overview
-
-This system analyzes uploaded resumes and matches them against a given job description.
-
-It performs:
-
-- Resume preprocessing using NLP  
-- Skill extraction  
-- Job role prediction using Naive Bayes  
-- Resume ranking using TF-IDF + Cosine Similarity  
-- Match score calculation (%)  
-
-The system reduces manual screening effort and increases hiring efficiency using data-driven decision-making.
+This system simulates the core functionality of a modern **Applicant Tracking System (ATS)** using **Natural Language Processing (NLP)** and **Machine Learning**.
 
 ---
 
-## 🔥 Key Features
+# 🚀 Project Overview
 
-- 📄 Job Description Input  
-- 📂 Upload Multiple Resumes (.txt)  
-- 🧹 Resume Text Preprocessing  
-- 🛠️ Technical Skill Extraction  
-- 🎯 Job Role Prediction (Naive Bayes)  
-- 📊 TF-IDF Vectorization  
-- 📈 Cosine Similarity Ranking  
-- 🌐 Interactive Streamlit Interface  
+Recruiters often receive **hundreds of resumes for a single job role**, making manual screening time-consuming and inefficient.
 
----
+The **AI Resume Screening & Job Match System** automates this process by:
 
-## 🧠 How It Works
+* Extracting relevant **skills from resumes**
+* Predicting **suitable job roles**
+* Calculating **resume-job similarity**
+* Ranking candidates based on **match percentage**
 
-1. User enters a job description.  
-2. User uploads one or more resume files (.txt).  
-3. The system:
-   - Cleans and preprocesses text (tokenization, stopword removal, normalization).  
-   - Extracts relevant skills.  
-   - Converts text to TF-IDF vectors.  
-   - Calculates cosine similarity between resumes and job description.  
-   - Predicts suitable job role using Naive Bayes classifier.  
-4. Resumes are ranked based on match percentage.  
-5. Results are displayed in the Streamlit interface.
+This enables **data-driven hiring decisions** and significantly reduces recruitment effort.
 
 ---
 
-## 🏗️ System Architecture
+# 🔥 Key Features
+
+✅ Job Description Input
+
+✅ Upload Multiple Resumes (**PDF / TXT**)
+
+✅ Resume Text Preprocessing using NLP
+
+✅ Automatic **Skill Extraction**
+
+✅ **Keyword Detection** from Job Description
+
+✅ **Job Role Prediction** using Naive Bayes
+
+✅ **TF-IDF Vectorization**
+
+✅ **Cosine Similarity Resume Matching**
+
+✅ **ATS Score Calculation**
+
+✅ **Candidate Ranking Dashboard**
+
+✅ **Resume Preview for Recruiters**
+
+✅ Interactive **Streamlit UI**
+
+---
+
+# 🧠 How It Works
+
+### Step 1 — Job Description Input
+
+The recruiter provides a **job description** containing the required skills and responsibilities.
+
+### Step 2 — Resume Upload
+
+Multiple resumes can be uploaded in:
+
+* `.pdf`
+* `.txt`
+
+### Step 3 — NLP Preprocessing
+
+The system performs:
+
+* Tokenization
+* Stopword removal
+* Text normalization
+* Cleaning unwanted characters
+
+using **NLTK**.
+
+### Step 4 — Skill Extraction
+
+Technical skills are extracted from resumes using a predefined **skills database**.
+
+### Step 5 — Text Vectorization
+
+Resumes and the job description are converted into numerical vectors using **TF-IDF**.
+
+### Step 6 — Resume Matching
+
+Similarity is computed using:
+
+**Cosine Similarity**
 
 ```
+Resume ↔ Job Description
+```
 
+### Step 7 — ATS Score Calculation
+
+The final score is calculated based on:
+
+* Semantic similarity
+* Skill match percentage
+
+### Step 8 — Job Role Prediction
+
+A **Multinomial Naive Bayes classifier** predicts the most suitable job role.
+
+### Step 9 — Candidate Ranking
+
+Resumes are ranked from **highest match to lowest match**.
+
+Results are displayed in an **ATS-style dashboard**.
+
+---
+
+# 🏗️ System Architecture
+
+```
 Job Description
       ↓
-Resume Upload (.txt)
+Resume Upload (PDF / TXT)
       ↓
 Text Preprocessing (NLTK)
       ↓
@@ -71,49 +131,90 @@ TF-IDF Vectorization
       ↓
 Cosine Similarity
       ↓
-Naive Bayes Role Prediction
+Naive Bayes Job Role Prediction
       ↓
-Ranking & Match Score Output
-
-````
-
----
-
-## 🛠️ Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| Programming Language | Python |
-| NLP | NLTK |
-| Machine Learning | Scikit-learn |
-| Model Used | Multinomial Naive Bayes |
-| Vectorization | TF-IDF |
-| Similarity Metric | Cosine Similarity |
-| Frontend Framework | Streamlit |
+ATS Score Calculation
+      ↓
+Candidate Ranking Dashboard
+```
 
 ---
 
-## 📸 App Preview
+# 🛠️ Tech Stack
+
+| Layer                | Technology              |
+| -------------------- | ----------------------- |
+| Programming Language | Python                  |
+| NLP                  | NLTK                    |
+| Machine Learning     | Scikit-learn            |
+| Model                | Multinomial Naive Bayes |
+| Vectorization        | TF-IDF                  |
+| Similarity Metric    | Cosine Similarity       |
+| PDF Parsing          | pdfminer                |
+| Frontend             | Streamlit               |
+
+---
+
+# 📂 Project Structure
+
+```
+AI-Resume-Job-Match-System
+│
+├── app.py
+├── requirements.txt
+│
+├── src
+│   ├── preprocess.py
+│   ├── skill_extractor.py
+│   ├── job_predictor.py
+│   ├── pdf_parser.py
+│   └── train.py
+│
+├── data
+│   ├── skills.txt
+│   └── job_roles.csv
+│
+├── assets
+│   └── screenshots
+│       ├── home_v2.png
+│       ├── upload_v2.png
+│       └── results_v2.png
+│
+└── README.md
+```
+
+---
+
+# 📸 Application Preview
 
 ### 🖥️ Home Screen
+
 ![Home Screen](assets/screenshots/home_v2.png)
 
-### 📂 Resume Upload & Skill Extraction
+---
+
+### 📂 Resume Upload & Skill Detection
+
 ![Upload Screen](assets/screenshots/upload_v2.png)
 
-### 🏆 Ranking Results & Job Role Prediction
+---
+
+### 🏆 Resume Ranking & Job Role Prediction
+
 ![Results Screen](assets/screenshots/results_v2.png)
 
 ---
 
-## ▶️ How to Run Locally
+# ▶️ Run Locally
 
 ### 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/AI-Resume-Job-Match-System.git
+git clone https://github.com/DurgaPavan0923/AI-Resume-Job-Match-System.git
 cd AI-Resume-Job-Match-System
-````
+```
+
+---
 
 ### 2️⃣ Install Dependencies
 
@@ -121,13 +222,23 @@ cd AI-Resume-Job-Match-System
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Run the App
+---
+
+### 3️⃣ Train the Job Role Model
+
+```bash
+python src/train.py
+```
+
+---
+
+### 4️⃣ Run the Application
 
 ```bash
 streamlit run app.py
 ```
 
-Open your browser and go to:
+Open your browser:
 
 ```
 http://localhost:8501
@@ -135,57 +246,61 @@ http://localhost:8501
 
 ---
 
-## 🎯 Placement-Oriented Use Case
+# 🎯 Real-World Applications
 
-This project is ideal for:
+This project can be used in:
 
-* University placement cells
-* HR departments
-* AI-based ATS systems
-* Recruitment startups
-* Automated resume shortlisting systems
-
-It demonstrates practical implementation of NLP + ML in a real-world industry problem.
+🏢 HR Resume Screening Systems
+🎓 University Placement Cells
+🚀 Startup Hiring Platforms
+🤖 AI-powered Applicant Tracking Systems (ATS)
+📊 Recruitment Automation Tools
 
 ---
 
-## 🔮 Future Enhancements
+# 🔮 Future Enhancements
 
-* PDF Resume Parsing
-* Advanced Skill Extraction using NER
-* BERT-based Resume Matching
-* ATS Score Calculation
-* Recruiter Dashboard
-* Database Integration
-* Cloud Deployment (Streamlit Cloud / Render)
-* Authentication System (Admin Login)
-
----
-
-## 💡 Why This Project Stands Out
-
-✔ Real-world application
-
-✔ Combines NLP + Machine Learning
-
-✔ Placement-ready AI project
-
-✔ Easily extendable to Deep Learning
-
-✔ Strong portfolio addition
+* 📄 Advanced **PDF Resume Parsing**
+* 🧠 **BERT-based Resume Matching**
+* 🧾 **Named Entity Recognition (NER) Skill Extraction**
+* 📊 Advanced **ATS Score Calculation**
+* 👩‍💼 Recruiter **Analytics Dashboard**
+* 🗄️ **Database Integration**
+* ☁️ Cloud Deployment (Streamlit Cloud / Render)
+* 🔐 **Authentication System**
+* 📈 Resume **Skill Gap Analysis**
 
 ---
 
-## 👨‍💻 Author
+# 💡 Why This Project Stands Out
+
+✔ Solves a **real-world recruitment problem**
+
+✔ Combines **NLP + Machine Learning**
+
+✔ Simulates a **modern ATS system**
+
+✔ Easily extendable to **Deep Learning**
+
+✔ Strong **AI portfolio project**
+
+✔ Demonstrates **industry-relevant ML applications**
+
+---
+
+# 👨‍💻 Author
 
 **Rajana Durga Pavan Kumar**
 
-B.Tech CSE (AI & ML)
+B.Tech – Computer Science & Engineering (AI & ML)
+Institute of Technical Education and Research (ITER)
+SOA University
 
-Institute of Technical Education and Research
+GitHub
+https://github.com/DurgaPavan0923
 
 ---
 
-## 📜 License
+# 📜 License
 
-This project is open-source and available under the MIT License.
+This project is licensed under the **MIT License**.
