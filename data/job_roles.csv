@@ -1,5 +1,9 @@
-resume_text,job_role
-python machine learning data analysis nlp,Data Scientist
-java spring boot microservices backend,Backend Developer
-html css javascript react frontend ui,Frontend Developer
-aws docker kubernetes devops cloud,DevOps Engineer
+role,text
+Data Scientist,python machine learning pandas numpy statistics data analysis
+Machine Learning Engineer,python tensorflow pytorch deep learning neural networks
+Web Developer,html css javascript react nodejs frontend backend
+Backend Developer,python django flask api database sql
+Frontend Developer,html css javascript react ui ux
+DevOps Engineer,docker kubernetes aws ci cd linux cloud
+Software Engineer,java python algorithms data structures software development
+AI Engineer,python machine learning deep learning nlp tensorflow
