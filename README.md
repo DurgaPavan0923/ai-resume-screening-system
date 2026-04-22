@@ -141,19 +141,19 @@ AI-Resume-Job-Match-System
 
 ### 🖥️ Home Screen
 
-![Home Screen](assets/screenshots/home_v2.png)
+![Home Screen](assets/screenshots/home.png)
 
 ---
 
 ### 📂 Resume Upload & Skill Detection
 
-![Upload Screen](assets/screenshots/upload_v2.png)
+![Upload Screen](assets/screenshots/upload.png)
 
 ---
 
 ### 🏆 Resume Ranking & Job Role Prediction
 
-![Results Screen](assets/screenshots/results_v2.png)
+![Results Screen](assets/screenshots/result.png)
 
 ---
 
