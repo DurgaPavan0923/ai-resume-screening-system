@@ -1,13 +1,20 @@
 import pickle
+from config import MODEL_PATH, VECTORIZER_PATH
 
-MODEL_PATH = "model/job_role_model.pkl"
-VEC_PATH = "model/vectorizer.pkl"
+
+def load_model():
+    with open(MODEL_PATH, "rb") as f:
+        model = pickle.load(f)
+
+    with open(VECTORIZER_PATH, "rb") as f:
+        vectorizer = pickle.load(f)
+
+    return model, vectorizer
+
 
 def predict_role(text):
+    model, vectorizer = load_model()
+    vec = vectorizer.transform([text])
+    prediction = model.predict(vec)[0]
 
-    model = pickle.load(open(MODEL_PATH, "rb"))
-    vectorizer = pickle.load(open(VEC_PATH, "rb"))
-
-    X = vectorizer.transform([text])
-
-    return model.predict(X)[0]
+    return prediction
