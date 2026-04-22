@@ -1,25 +1,40 @@
 python
 java
 c++
-sql
+c
+javascript
+html
+css
+react
+angular
+nodejs
+django
+flask
 machine learning
 deep learning
 nlp
+data science
 data analysis
 pandas
 numpy
+scikit-learn
 tensorflow
 pytorch
-scikit-learn
-react
-nodejs
+sql
+mysql
+mongodb
+postgresql
+git
+github
 docker
 kubernetes
 aws
-flask
-django
-git
+azure
 linux
-html
-css
-javascript
+excel
+power bi
+tableau
+communication
+problem solving
+teamwork
+leadership
