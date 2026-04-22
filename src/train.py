@@ -1,25 +1,14 @@
-import pandas as pd
-import pickle
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-import os
+def load_skills(path):
+    with open(path, "r") as f:
+        skills = [line.strip().lower() for line in f if line.strip()]
+    return skills
 
-os.makedirs("model", exist_ok=True)
 
-data = pd.read_csv("data/job_roles.csv")
+def extract_skills(text, skills_list):
+    found_skills = []
 
-X = data["text"]
-y = data["role"]
+    for skill in skills_list:
+        if skill in text:
+            found_skills.append(skill)
 
-vectorizer = TfidfVectorizer()
-
-X_vec = vectorizer.fit_transform(X)
-
-model = MultinomialNB()
-
-model.fit(X_vec, y)
-
-pickle.dump(model, open("model/job_role_model.pkl", "wb"))
-pickle.dump(vectorizer, open("model/vectorizer.pkl", "wb"))
-
-print("Model trained successfully")
+    return list(set(found_skills))
