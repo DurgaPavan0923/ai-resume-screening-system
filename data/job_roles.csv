@@ -1,9 +1,16 @@
-role,text
-Data Scientist,python machine learning pandas numpy statistics data analysis
-Machine Learning Engineer,python tensorflow pytorch deep learning neural networks
-Web Developer,html css javascript react nodejs frontend backend
-Backend Developer,python django flask api database sql
-Frontend Developer,html css javascript react ui ux
-DevOps Engineer,docker kubernetes aws ci cd linux cloud
-Software Engineer,java python algorithms data structures software development
-AI Engineer,python machine learning deep learning nlp tensorflow
+text,role
+"python machine learning data analysis pandas numpy scikit-learn","Data Scientist"
+"deep learning tensorflow pytorch neural networks ai","AI Engineer"
+"html css javascript react frontend ui ux","Frontend Developer"
+"nodejs express mongodb backend api development","Backend Developer"
+"java spring boot microservices backend","Backend Developer"
+"sql database data analysis excel power bi tableau","Data Analyst"
+"aws docker kubernetes devops ci cd linux","DevOps Engineer"
+"django flask python backend api development","Backend Developer"
+"react angular javascript frontend web development","Frontend Developer"
+"nlp text processing machine learning python","NLP Engineer"
+"c++ embedded systems microcontrollers","Embedded Engineer"
+"android java kotlin mobile development","Mobile Developer"
+"swift ios mobile development","Mobile Developer"
+"git github teamwork communication leadership","Software Engineer"
+"data visualization tableau power bi dashboards","Data Analyst"
