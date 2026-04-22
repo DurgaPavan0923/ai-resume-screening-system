@@ -1,86 +1,169 @@
 import streamlit as st
 from sklearn.metrics.pairwise import cosine_similarity
 
+# Core modules
 from src.pdf_parser import parse_pdf
 from src.preprocess import clean_text
 from src.skill_extractor import load_skills, extract_skills
-from src.job_predictor import predict_role, load_model
+from src.job_predictor import load_model, predict_role
+from src.similarity import compute_similarity
+
+# Utils
+from utils.helpers import (
+    validate_input,
+    normalize_score,
+    format_skills
+)
+
+# Config
 from config import SKILLS_PATH
 
-# Page config
-st.set_page_config(page_title="AI Resume Matcher", layout="wide")
 
-# ===== Custom UI Styling =====
-st.markdown("""
-<style>
-body {
-    background-color: #0e1117;
-    color: white;
-}
-.title {
-    font-size: 42px;
-    font-weight: bold;
-    color: #00adb5;
-}
-.card {
-    background: #1c1f26;
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 15px;
-}
-</style>
-""", unsafe_allow_html=True)
+# =========================
+# 🎨 LOAD CUSTOM CSS
+# =========================
+def load_css():
+    try:
+        with open("assets/styles.css") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    except:
+        pass
 
-# Title
+
+# =========================
+# 🚀 PAGE CONFIG
+# =========================
+st.set_page_config(
+    page_title="AI Resume Matcher",
+    page_icon="🤖",
+    layout="wide"
+)
+
+load_css()
+
+
+# =========================
+# 🧠 HEADER
+# =========================
 st.markdown('<div class="title">🤖 AI Resume Screening System</div>', unsafe_allow_html=True)
 
-# Input: Job Description
-job_desc = st.text_area("📄 Enter Job Description", height=150)
+st.markdown("""
+Analyze resumes instantly using AI.  
+Upload resumes, match with job description, and rank candidates automatically.
+""")
 
-# Upload resumes
-files = st.file_uploader("📂 Upload Resumes (PDF)", accept_multiple_files=True)
 
-# Analyze button
-if st.button("🚀 Analyze"):
-    if not job_desc or not files:
-        st.warning("Please provide job description and upload resumes")
-    else:
-        skills_db = load_skills(SKILLS_PATH)
-        model, vectorizer = load_model()
+# =========================
+# 📄 INPUT SECTION
+# =========================
+col1, col2 = st.columns([2, 1])
 
-        job_clean = clean_text(job_desc)
-        job_vec = vectorizer.transform([job_clean])
+with col1:
+    job_desc = st.text_area("📄 Enter Job Description", height=180)
 
-        results = []
+with col2:
+    st.markdown("### 📂 Upload Resumes")
+    files = st.file_uploader(
+        "Upload PDF files",
+        type=["pdf"],
+        accept_multiple_files=True
+    )
 
+
+# =========================
+# 🚀 ANALYZE BUTTON
+# =========================
+if st.button("🚀 Analyze Candidates"):
+
+    # Validate input
+    valid, msg = validate_input(job_desc, files)
+    if not valid:
+        st.warning(msg)
+        st.stop()
+
+    # Load resources
+    skills_db = load_skills(SKILLS_PATH)
+    model, vectorizer = load_model()
+
+    # Process job description
+    job_clean = clean_text(job_desc)
+
+    results = []
+
+    # =========================
+    # 🔍 PROCESS EACH RESUME
+    # =========================
+    with st.spinner("Analyzing resumes..."):
         for file in files:
-            text = parse_pdf(file)
-            clean = clean_text(text)
+            try:
+                # Extract text from PDF
+                text = parse_pdf(file)
 
-            vec = vectorizer.transform([clean])
-            score = cosine_similarity(job_vec, vec)[0][0]
+                if not text.strip():
+                    continue
 
-            skills = extract_skills(clean, skills_db)
-            role = predict_role(clean)
+                # Clean text
+                clean = clean_text(text)
 
-            results.append({
-                "name": file.name,
-                "score": round(score * 100, 2),
-                "skills": skills,
-                "role": role
-            })
+                # Similarity score
+                score = compute_similarity(job_clean, clean, vectorizer)
 
-        # Sort results
-        results = sorted(results, key=lambda x: x['score'], reverse=True)
+                # Extract skills
+                skills = extract_skills(clean, skills_db)
 
-        st.subheader("🏆 Ranked Candidates")
+                # Predict role
+                role = predict_role(clean)
 
-        for r in results:
+                results.append({
+                    "name": file.name,
+                    "score": normalize_score(score),
+                    "skills": skills,
+                    "role": role
+                })
+
+            except Exception as e:
+                st.error(f"Error processing {file.name}: {e}")
+
+    # =========================
+    # 📊 DISPLAY RESULTS
+    # =========================
+    if not results:
+        st.error("No valid resumes processed.")
+    else:
+        # Sort by score
+        results = sorted(results, key=lambda x: x["score"], reverse=True)
+
+        st.markdown("## 🏆 Ranked Candidates")
+
+        # Progress bar style display
+        for i, r in enumerate(results):
             st.markdown(f"""
             <div class="card">
-                <h3>{r['name']}</h3>
-                <p>🎯 Score: {r['score']}%</p>
-                <p>💼 Predicted Role: {r['role']}</p>
-                <p>🛠 Skills: {', '.join(r['skills'])}</p>
+                <h3>{i+1}. {r['name']}</h3>
+                <p>🎯 <b>Match Score:</b> {r['score']}%</p>
+                <p>💼 <b>Predicted Role:</b> {r['role']}</p>
+                <p>🛠 <b>Skills:</b> {format_skills(r['skills'])}</p>
             </div>
             """, unsafe_allow_html=True)
+
+        # =========================
+        # 📈 SUMMARY
+        # =========================
+        st.markdown("## 📊 Summary")
+
+        top_candidate = results[0]
+
+        col1, col2, col3 = st.columns(3)
+
+        col1.metric("Top Candidate", top_candidate["name"])
+        col2.metric("Best Score", f"{top_candidate['score']}%")
+        col3.metric("Predicted Role", top_candidate["role"])
+
+
+# =========================
+# 📌 FOOTER
+# =========================
+st.markdown("---")
+st.markdown(
+    "💡 Built with NLP, Machine Learning & Streamlit | AI Resume Screening System"
+)
