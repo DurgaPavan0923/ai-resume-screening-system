@@ -3,116 +3,57 @@
 ![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python)
 ![Machine Learning](https://img.shields.io/badge/Machine%20Learning-Scikit--Learn-orange?logo=scikit-learn)
 ![NLP](https://img.shields.io/badge/NLP-NLTK-green)
-![Frontend](https://img.shields.io/badge/UI-Streamlit-red?logo=streamlit)
+![UI](https://img.shields.io/badge/UI-Streamlit-red?logo=streamlit)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-An **AI-powered recruitment assistant** that automatically analyzes resumes and ranks candidates based on how well they match a given job description.
-
-This system simulates the core functionality of a modern **Applicant Tracking System (ATS)** using **Natural Language Processing (NLP)** and **Machine Learning**.
+An **AI-powered recruitment assistant** that analyzes resumes and ranks candidates based on job description relevance.
 
 ---
 
 # 🚀 Project Overview
 
-Recruiters often receive **hundreds of resumes for a single job role**, making manual screening time-consuming and inefficient.
+Recruiters receive hundreds of resumes for a single role. This system automates:
 
-The **AI Resume Screening & Job Match System** automates this process by:
-
-* Extracting relevant **skills from resumes**
-* Predicting **suitable job roles**
-* Calculating **resume-job similarity**
-* Ranking candidates based on **match percentage**
-
-This enables **data-driven hiring decisions** and significantly reduces recruitment effort.
-
+- 📄 Resume parsing (PDF)
+- 🧹 Text preprocessing (NLP)
+- 🛠 Skill extraction
+- 🧠 Job role prediction
+- 📊 Resume-job similarity scoring
+- 🏆 Candidate ranking
 ---
 
 # 🔥 Key Features
 
-✅ Job Description Input
+✅ Upload multiple resumes (PDF)
 
-✅ Upload Multiple Resumes (**PDF / TXT**)
+✅ Job description input
 
-✅ Resume Text Preprocessing using NLP
+✅ Skill extraction
 
-✅ Automatic **Skill Extraction**
+✅ TF-IDF vectorization
 
-✅ **Keyword Detection** from Job Description
+✅ Cosine similarity matching
 
-✅ **Job Role Prediction** using Naive Bayes
+✅ Job role prediction
 
-✅ **TF-IDF Vectorization**
+✅ ATS scoring system
 
-✅ **Cosine Similarity Resume Matching**
+✅ Ranking dashboard
 
-✅ **ATS Score Calculation**
-
-✅ **Candidate Ranking Dashboard**
-
-✅ **Resume Preview for Recruiters**
-
-✅ Interactive **Streamlit UI**
+✅ Streamlit UI
 
 ---
 
 # 🧠 How It Works
 
-### Step 1 — Job Description Input
-
-The recruiter provides a **job description** containing the required skills and responsibilities.
-
-### Step 2 — Resume Upload
-
-Multiple resumes can be uploaded in:
-
-* `.pdf`
-* `.txt`
-
-### Step 3 — NLP Preprocessing
-
-The system performs:
-
-* Tokenization
-* Stopword removal
-* Text normalization
-* Cleaning unwanted characters
-
-using **NLTK**.
-
-### Step 4 — Skill Extraction
-
-Technical skills are extracted from resumes using a predefined **skills database**.
-
-### Step 5 — Text Vectorization
-
-Resumes and the job description are converted into numerical vectors using **TF-IDF**.
-
-### Step 6 — Resume Matching
-
-Similarity is computed using:
-
-**Cosine Similarity**
-
-```
-Resume ↔ Job Description
-```
-
-### Step 7 — ATS Score Calculation
-
-The final score is calculated based on:
-
-* Semantic similarity
-* Skill match percentage
-
-### Step 8 — Job Role Prediction
-
-A **Multinomial Naive Bayes classifier** predicts the most suitable job role.
-
-### Step 9 — Candidate Ranking
-
-Resumes are ranked from **highest match to lowest match**.
-
-Results are displayed in an **ATS-style dashboard**.
+1. Enter job description  
+2. Upload resumes  
+3. System processes text using NLP  
+4. Extracts skills  
+5. Converts text → TF-IDF vectors  
+6. Computes similarity  
+7. Predicts job role  
+8. Ranks candidates
 
 ---
 
@@ -121,9 +62,11 @@ Results are displayed in an **ATS-style dashboard**.
 ```
 Job Description
       ↓
-Resume Upload (PDF / TXT)
+Resume Upload (PDF)
       ↓
-Text Preprocessing (NLTK)
+PDF Parsing (PyMuPDF)
+      ↓
+Text Preprocessing
       ↓
 Skill Extraction
       ↓
@@ -131,16 +74,12 @@ TF-IDF Vectorization
       ↓
 Cosine Similarity
       ↓
-Naive Bayes Job Role Prediction
+Naive Bayes Prediction
       ↓
-ATS Score Calculation
-      ↓
-Candidate Ranking Dashboard
+Ranking Output
 ```
 
 ---
-
-# 🛠️ Tech Stack
 
 | Layer                | Technology              |
 | -------------------- | ----------------------- |
@@ -150,9 +89,11 @@ Candidate Ranking Dashboard
 | Model                | Multinomial Naive Bayes |
 | Vectorization        | TF-IDF                  |
 | Similarity Metric    | Cosine Similarity       |
-| PDF Parsing          | pdfminer                |
+| PDF Parsing          | PyMuPDF (fitz)          |
 | Frontend             | Streamlit               |
-
+| Data Processing      | Pandas                  |
+| Model Persistence    | Pickle                  |
+| UI Styling           | Custom CSS              |
 ---
 
 # 📂 Project Structure
@@ -161,25 +102,36 @@ Candidate Ranking Dashboard
 AI-Resume-Job-Match-System
 │
 ├── app.py
+├── config.py
 ├── requirements.txt
 │
-├── src
-│   ├── preprocess.py
-│   ├── skill_extractor.py
-│   ├── job_predictor.py
-│   ├── pdf_parser.py
-│   └── train.py
+├── models/
+│ ├── model.pkl
+│ └── vectorizer.pkl
+│ 
+├── src/
+│ ├── preprocess.py
+│ ├── pdf_parser.py
+│ ├── skill_extractor.py
+│ ├── job_predictor.py
+│ ├── similarity.py
+│ └── train.py
+│
+├── utils/
+│ └── helpers.py
 │
 ├── data
 │   ├── skills.txt
 │   └── job_roles.csv
 │
 ├── assets
+│   ├── styles.css
 │   └── screenshots
 │       ├── home_v2.png
 │       ├── upload_v2.png
 │       └── results_v2.png
-│
+├── notebooks/
+│   └──exploration.ipynb
 └── README.md
 ```
 
@@ -205,18 +157,18 @@ AI-Resume-Job-Match-System
 
 ---
 
-# ▶️ Run Locally
+# ▶️ How to Run
 
-### 1️⃣ Clone Repository
+### 1. Clone Repository
 
 ```bash
-git clone https://github.com/DurgaPavan0923/AI-Resume-Job-Match-System.git
+git clone https://github.com/your-username/AI-Resume-Job-Match-System.git
 cd AI-Resume-Job-Match-System
 ```
 
 ---
 
-### 2️⃣ Install Dependencies
+### 2. Install Requirements
 
 ```bash
 pip install -r requirements.txt
@@ -224,7 +176,7 @@ pip install -r requirements.txt
 
 ---
 
-### 3️⃣ Train the Job Role Model
+### 3. Train Model
 
 ```bash
 python src/train.py
@@ -232,13 +184,13 @@ python src/train.py
 
 ---
 
-### 4️⃣ Run the Application
+### Run App
 
 ```bash
 streamlit run app.py
 ```
 
-Open your browser:
+Open:
 
 ```
 http://localhost:8501
@@ -246,13 +198,13 @@ http://localhost:8501
 
 ---
 
-# 🎯 Real-World Applications
+# Applications
 
 This project can be used in:
 
 🏢 HR Resume Screening Systems
 🎓 University Placement Cells
-🚀 Startup Hiring Platforms
+🚀 Hiring Platforms
 🤖 AI-powered Applicant Tracking Systems (ATS)
 📊 Recruitment Automation Tools
 
@@ -269,22 +221,6 @@ This project can be used in:
 * ☁️ Cloud Deployment (Streamlit Cloud / Render)
 * 🔐 **Authentication System**
 * 📈 Resume **Skill Gap Analysis**
-
----
-
-# 💡 Why This Project Stands Out
-
-✔ Solves a **real-world recruitment problem**
-
-✔ Combines **NLP + Machine Learning**
-
-✔ Simulates a **modern ATS system**
-
-✔ Easily extendable to **Deep Learning**
-
-✔ Strong **AI portfolio project**
-
-✔ Demonstrates **industry-relevant ML applications**
 
 ---
 
