@@ -1,6 +1,7 @@
 streamlit
-pandas
 scikit-learn
 nltk
+pandas
 pdfminer.six
-plotly
+pymupdf
+pickle-mixin
