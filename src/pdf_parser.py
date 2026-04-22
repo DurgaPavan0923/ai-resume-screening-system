@@ -1,14 +1,15 @@
-from pdfminer.high_level import extract_text
-import tempfile
+import fitz  # PyMuPDF
 
-def extract_text_from_pdf(uploaded_file):
+def parse_pdf(uploaded_file):
+    try:
+        text = ""
+        pdf = fitz.open(stream=uploaded_file.read(), filetype="pdf")
 
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+        for page in pdf:
+            text += page.get_text()
 
-        tmp_file.write(uploaded_file.read())
+        return text.strip()
 
-        path = tmp_file.name
-
-    text = extract_text(path)
-
-    return text
+    except Exception as e:
+        print(f"Error reading PDF: {e}")
+        return ""
