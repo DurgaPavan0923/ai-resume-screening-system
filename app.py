@@ -72,7 +72,7 @@ model, vectorizer = get_model()
 # =========================
 # 🧠 HEADER
 # =========================
-st.markdown('<div class="main-title">🤖 AI Resume Screening System</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">AI Resume Screening System</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Analyze resumes and rank candidates using AI</div>', unsafe_allow_html=True)
 
 
@@ -82,16 +82,16 @@ st.markdown('<div class="subtitle">Analyze resumes and rank candidates using AI<
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    job_desc = st.text_area("📄 Job Description", height=200)
+    job_desc = st.text_area("Job Description", height=200)
 
 with col2:
-    files = st.file_uploader("📂 Upload Resumes", type=["pdf"], accept_multiple_files=True)
+    files = st.file_uploader("Upload Resumes", type=["pdf"], accept_multiple_files=True)
 
 
 # =========================
 # 🚀 BUTTON
 # =========================
-if st.button("🚀 Analyze Candidates"):
+if st.button("Analyze Candidates"):
 
     valid, msg = validate_input(job_desc, files)
     if not valid:
@@ -134,7 +134,7 @@ if st.button("🚀 Analyze Candidates"):
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-        st.subheader("🏆 Ranked Candidates")
+        st.subheader("Ranked Candidates")
 
         for i, r in enumerate(results):
             st.markdown(f"""
