@@ -33,7 +33,7 @@ def load_css():
     .subtitle {
         font-family: 'Poppins', sans-serif;
         font-size: 18px;
-        color: #d1e8ff !important;
+        color: #010c0d !important;
     }
 
     /* ===== HEADINGS ===== */
