@@ -92,9 +92,8 @@ with st.sidebar:
 # HEADER
 # =========================
 st.markdown("""
-<div style="
-    padding: 20px 0px 10px 0px;
-">
+<div style="padding: 20px 0px 10px 0px;">
+
     <h1 style="
         font-family: 'Orbitron', sans-serif;
         font-size: 42px;
@@ -121,6 +120,7 @@ st.markdown("""
         background: linear-gradient(90deg, #00c6ff, transparent);
         margin-top: 10px;
     "></div>
+
 </div>
 """, unsafe_allow_html=True)
 
