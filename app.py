@@ -13,7 +13,7 @@ from config import SKILLS_PATH
 
 
 # =========================
-# 🎨 CSS (ONLY FIXED UPLOADER)
+# 🎨 CLEAN CSS (FIXED)
 # =========================
 def load_css():
     st.markdown("""
@@ -79,44 +79,25 @@ def load_css():
         border-radius: 10px !important;
     }
 
-    /* =========================
-       🔥 FIX FILE UPLOADER
-    ========================= */
-
-    /* DARK THEME */
-    html[data-theme="dark"] div[data-testid="stFileUploader"] {
+    /* ===== FILE UPLOADER FIX ===== */
+    div[data-testid="stFileUploader"] {
         background: rgba(0,0,0,0.6);
-        border-radius: 10px;
         padding: 10px;
-    }
-
-    html[data-theme="dark"] div[data-testid="stFileUploader"] * {
-        color: white !important;
-    }
-
-    /* LIGHT THEME FIX */
-    html[data-theme="light"] div[data-testid="stFileUploader"] {
-        background: #1e293b !important;
         border-radius: 10px;
-        padding: 10px;
     }
 
-    html[data-theme="light"] div[data-testid="stFileUploader"] * {
+    div[data-testid="stFileUploader"] * {
         color: white !important;
-    }
-
-    html[data-theme="light"] div[data-testid="stFileUploader"] section {
-        background: #111827 !important;
-        border-radius: 8px;
-    }
-
-    html[data-theme="light"] div[data-testid="stFileUploader"] svg {
-        fill: white !important;
     }
 
     /* ===== SIDEBAR ===== */
     section[data-testid="stSidebar"] {
         background: rgba(0,0,0,0.8);
+    }
+
+    /* ===== FIX FLOAT MENU ===== */
+    div[data-testid="stToolbar"] {
+        background: transparent !important;
     }
 
     </style>
@@ -239,4 +220,4 @@ if st.button("🚀 Analyze Candidates"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("✨ Clean UI with Light/Dark Fix")
+st.markdown("✨ Clean & Fixed UI")
