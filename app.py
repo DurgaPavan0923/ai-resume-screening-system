@@ -213,4 +213,4 @@ if st.button(" Analyze Candidates"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("✨ AI Resume Screening System | Clean UI")
+st.markdown(" AI Resume Screening System | Clean UI")
