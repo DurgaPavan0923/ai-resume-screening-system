@@ -13,119 +13,86 @@ from config import SKILLS_PATH
 
 
 # =========================
-# 🎨 THEME-AWARE + ANIMATION CSS
+# 🎨 FINAL CSS (FIXED)
 # =========================
 def load_css():
     st.markdown("""
     <style>
 
-    /* ================= BACKGROUND ANIMATION ================= */
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&family=Roboto:wght@400&display=swap');
+
+    /* ===== BACKGROUND ===== */
     .stApp {
-        background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1e3c72);
+        background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364);
         background-size: 400% 400%;
-        animation: gradientMove 12s ease infinite;
+        animation: bgMove 10s ease infinite;
     }
 
-    @keyframes gradientMove {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
+    @keyframes bgMove {
+        0% {background-position:0% 50%;}
+        50% {background-position:100% 50%;}
+        100% {background-position:0% 50%;}
     }
 
-    /* ================= LIGHT THEME FIX ================= */
-    html[data-theme="light"] .stApp {
-        background: linear-gradient(-45deg, #f5f7fa, #e4ecf7, #d6e4ff, #f0f5ff);
-        background-size: 400% 400%;
-        animation: gradientMove 12s ease infinite;
+    /* ===== TEXT FIX ===== */
+    * {
+        color: #ffffff !important;
+        font-family: 'Inter', sans-serif;
     }
 
-    /* ================= TEXT ================= */
+    /* ===== TITLE ===== */
     .main-title {
-        font-size: 48px;
-        font-weight: 800;
-        color: #00c6ff;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 50px;
+        color: #00e6ff !important;
+        text-shadow: 0px 0px 20px rgba(0,255,255,0.8);
     }
 
-    html[data-theme="light"] .main-title {
-        color: #0072ff;
-    }
-
+    /* ===== SUBTITLE ===== */
     .subtitle {
+        font-family: 'Poppins', sans-serif;
         font-size: 18px;
-        color: #cfd8dc;
+        color: #d1e8ff !important;
     }
 
-    html[data-theme="light"] .subtitle {
-        color: #333;
+    /* ===== HEADINGS ===== */
+    h2, h3 {
+        font-family: 'Poppins', sans-serif;
+        color: #00e6ff !important;
     }
 
-    /* ================= CARD ================= */
+    /* ===== CARD ===== */
     .card {
-        background: rgba(255,255,255,0.08);
-        backdrop-filter: blur(12px);
+        font-family: 'Roboto', sans-serif;
+        background: rgba(0,0,0,0.6);
         padding: 20px;
         border-radius: 15px;
         margin-bottom: 15px;
-        border: 1px solid rgba(255,255,255,0.1);
-        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        transition: 0.3s;
+        border: 1px solid rgba(255,255,255,0.2);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.5);
     }
 
-    html[data-theme="light"] .card {
-        background: rgba(255,255,255,0.9);
-        color: black;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-    }
-
-    /* ================= BUTTON ================= */
+    /* ===== BUTTON ===== */
     .stButton > button {
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        color: white;
+        background: linear-gradient(90deg, #00e6ff, #0072ff);
+        color: white !important;
         border-radius: 12px;
         height: 50px;
         width: 100%;
+        font-family: 'Poppins', sans-serif;
         font-size: 16px;
     }
 
-    /* ================= INPUT ================= */
+    /* ===== TEXT AREA ===== */
     textarea {
+        background: rgba(0,0,0,0.6) !important;
+        color: white !important;
         border-radius: 10px !important;
     }
 
-    html[data-theme="dark"] textarea {
-        background: rgba(255,255,255,0.05) !important;
-        color: white !important;
-    }
-
-    html[data-theme="light"] textarea {
-        background: white !important;
-        color: black !important;
-    }
-
-    /* ================= SIDEBAR ================= */
+    /* ===== SIDEBAR ===== */
     section[data-testid="stSidebar"] {
-        backdrop-filter: blur(10px);
-    }
-
-    html[data-theme="dark"] section[data-testid="stSidebar"] {
-        background: rgba(20,30,40,0.85);
-    }
-
-    html[data-theme="light"] section[data-testid="stSidebar"] {
-        background: rgba(255,255,255,0.9);
-    }
-
-    /* ================= HEADINGS ================= */
-    h2, h3 {
-        color: #00c6ff;
-    }
-
-    html[data-theme="light"] h2,
-    html[data-theme="light"] h3 {
-        color: #0072ff;
+        background: rgba(0,0,0,0.8);
     }
 
     </style>
@@ -133,14 +100,14 @@ def load_css():
 
 
 # =========================
-# 🚀 PAGE CONFIG
+# PAGE CONFIG
 # =========================
 st.set_page_config(page_title="AI Resume Dashboard", layout="wide")
 load_css()
 
 
 # =========================
-# 🧠 MODEL
+# MODEL
 # =========================
 @st.cache_resource
 def get_model():
@@ -150,24 +117,23 @@ model, vectorizer = get_model()
 
 
 # =========================
-# 📊 SIDEBAR
+# SIDEBAR
 # =========================
 with st.sidebar:
     st.title("📊 Dashboard")
-    st.write("AI-powered resume analysis")
+    st.write("AI Resume Analyzer")
 
     st.markdown("### 💡 Tips")
-    st.write("- Use detailed job descriptions")
-    st.write("- Add relevant skills")
-    st.write("- Upload multiple resumes")
+    st.write("✔ Use detailed job descriptions")
+    st.write("✔ Add skills")
+    st.write("✔ Upload multiple resumes")
 
 
 # =========================
-# 🧠 HEADER
+# HEADER
 # =========================
 st.markdown('<div class="main-title">🤖 AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Smart hiring powered by AI & NLP</div>', unsafe_allow_html=True)
-
 st.markdown("<hr>", unsafe_allow_html=True)
 
 
@@ -266,4 +232,4 @@ if st.button("🚀 Analyze Candidates"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("✨ AI Resume Screening System | Adaptive Theme UI")
+st.markdown("✨ AI Resume Screening System | Clean UI")
