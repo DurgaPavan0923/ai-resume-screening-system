@@ -102,10 +102,10 @@ model, vectorizer = get_model()
 # SIDEBAR
 # =========================
 with st.sidebar:
-    st.title("📊 Dashboard")
+    st.title("Dashboard")
     st.write("AI Resume Analyzer")
 
-    st.markdown("### 💡 Tips")
+    st.markdown("###  Tips")
     st.write("✔ Use detailed job descriptions")
     st.write("✔ Add skills")
     st.write("✔ Upload multiple resumes")
@@ -114,7 +114,7 @@ with st.sidebar:
 # =========================
 # HEADER
 # =========================
-st.markdown('<div class="main-title">🤖 AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title"> AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Smart hiring powered by AI</div>', unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -124,16 +124,16 @@ st.markdown("<hr>", unsafe_allow_html=True)
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    job_desc = st.text_area("📄 Job Description", height=200)
+    job_desc = st.text_area(" Job Description", height=200)
 
 with col2:
-    files = st.file_uploader("📂 Upload Resumes", type=["pdf"], accept_multiple_files=True)
+    files = st.file_uploader(" Upload Resumes", type=["pdf"], accept_multiple_files=True)
 
 
 # =========================
 # ANALYZE
 # =========================
-if st.button("🚀 Analyze Candidates"):
+if st.button(" Analyze Candidates"):
 
     valid, msg = validate_input(job_desc, files)
     if not valid:
@@ -172,11 +172,11 @@ if st.button("🚀 Analyze Candidates"):
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-        st.subheader("📊 Candidate Comparison")
+        st.subheader(" Candidate Comparison")
         df = pd.DataFrame(results)
         st.bar_chart(df.set_index("name")["score"])
 
-        st.subheader("🏆 Ranked Candidates")
+        st.subheader(" Ranked Candidates")
 
         for r in results:
             st.markdown(f"""
@@ -193,12 +193,12 @@ if st.button("🚀 Analyze Candidates"):
 
             st.info(f"Matched due to: {', '.join(r['skills'][:5])}")
 
-            with st.expander("📄 Resume Preview"):
+            with st.expander(" Resume Preview"):
                 st.write(raw_texts[r["name"]][:1000])
 
         top = results[0]
 
-        st.subheader("📈 Summary")
+        st.subheader(" Summary")
         c1, c2, c3 = st.columns(3)
 
         c1.metric("Top Candidate", top["name"])
