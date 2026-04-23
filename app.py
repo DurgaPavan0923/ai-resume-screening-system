@@ -120,10 +120,38 @@ with st.sidebar:
 # =========================
 # HEADER
 # =========================
-st.markdown('<div class="main-title">🤖 AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Smart hiring powered by AI & NLP</div>', unsafe_allow_html=True)
-st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("""
+<div style="
+    padding: 20px 0px 10px 0px;
+">
+    <h1 style="
+        font-family: 'Orbitron', sans-serif;
+        font-size: 42px;
+        margin-bottom: 5px;
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    ">
+        🤖 AI Resume Screening Dashboard
+    </h1>
 
+    <p style="
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+        color: #555;
+        margin-top: 0px;
+    ">
+        Smart hiring powered by AI & NLP
+    </p>
+
+    <div style="
+        height: 3px;
+        width: 100%;
+        background: linear-gradient(90deg, #00c6ff, transparent);
+        margin-top: 10px;
+    "></div>
+</div>
+""", unsafe_allow_html=True)
 
 # =========================
 # INPUT
