@@ -19,85 +19,44 @@ def load_css():
     st.markdown("""
     <style>
 
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&family=Roboto:wght@400&display=swap');
+    /* ================= FIX FILE UPLOADER ================= */
 
-    /* ===== BACKGROUND ===== */
-    .stApp {
-        background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364);
-        background-size: 400% 400%;
-        animation: bgMove 10s ease infinite;
-    }
-
-    @keyframes bgMove {
-        0% {background-position:0% 50%;}
-        50% {background-position:100% 50%;}
-        100% {background-position:0% 50%;}
-    }
-
-    /* ===== TEXT FIX ===== */
-    * {
-        color: #ffffff !important;
-        font-family: 'Inter', sans-serif;
-    }
-
-    /* ===== TITLE ===== */
-    .main-title {
-        font-family: 'Orbitron', sans-serif;
-        font-size: 50px;
-        color: #00e6ff !important;
-        text-shadow: 0px 0px 20px rgba(0,255,255,0.8);
-    }
-
-    /* ===== SUBTITLE ===== */
-    .subtitle {
-        font-family: 'Poppins', sans-serif;
-        font-size: 18px;
-        color: #d1e8ff !important;
-    }
-
-    /* ===== HEADINGS ===== */
-    h2, h3 {
-        font-family: 'Poppins', sans-serif;
-        color: #00e6ff !important;
-    }
-
-    /* ===== CARD ===== */
-    .card {
-        font-family: 'Roboto', sans-serif;
+    /* DARK THEME (keep as is) */
+    html[data-theme="dark"] div[data-testid="stFileUploader"] {
         background: rgba(0,0,0,0.6);
-        padding: 20px;
-        border-radius: 15px;
-        margin-bottom: 15px;
-        border: 1px solid rgba(255,255,255,0.2);
-        box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        border-radius: 10px;
+        padding: 10px;
     }
 
-    /* ===== BUTTON ===== */
-    .stButton > button {
-        background: linear-gradient(90deg, #00e6ff, #0072ff);
+    html[data-theme="dark"] div[data-testid="stFileUploader"] * {
         color: white !important;
-        border-radius: 12px;
-        height: 50px;
-        width: 100%;
-        font-family: 'Poppins', sans-serif;
-        font-size: 16px;
     }
 
-    /* ===== TEXT AREA ===== */
-    textarea {
-        background: rgba(0,0,0,0.6) !important;
-        color: white !important;
-        border-radius: 10px !important;
+    /* LIGHT THEME FIX */
+    html[data-theme="light"] div[data-testid="stFileUploader"] {
+        background: #1e293b !important;   /* dark card */
+        border-radius: 10px;
+        padding: 10px;
     }
 
-    /* ===== SIDEBAR ===== */
-    section[data-testid="stSidebar"] {
-        background: rgba(0,0,0,0.8);
+    html[data-theme="light"] div[data-testid="stFileUploader"] * {
+        color: white !important;  /* force visible text */
+    }
+
+    /* Fix file name boxes */
+    html[data-theme="light"] div[data-testid="stFileUploader"] section {
+        background: #111827 !important;
+        border-radius: 8px;
+    }
+
+    /* Fix icons */
+    html[data-theme="light"] div[data-testid="stFileUploader"] svg {
+        fill: white !important;
     }
 
     </style>
     """, unsafe_allow_html=True)
-
+    
 
 # =========================
 # PAGE CONFIG
