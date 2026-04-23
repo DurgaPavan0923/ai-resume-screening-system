@@ -1,6 +1,5 @@
 import streamlit as st
 
-# Core modules
 from src.pdf_parser import parse_pdf
 from src.preprocess import clean_text
 from src.skill_extractor import load_skills, extract_skills
@@ -8,46 +7,71 @@ from src.similarity import compute_similarity
 from src.train import train_model
 from src.job_predictor import predict_role
 
-# Utils
 from utils.helpers import validate_input, normalize_score, format_skills
-
-# Config
 from config import SKILLS_PATH
 
 
 # =========================
-# 🎨 CUSTOM CSS
+# 🎨 PREMIUM CSS
 # =========================
 def load_css():
     st.markdown("""
     <style>
-    body { background-color: #0e1117; color: white; }
 
+    /* Page */
+    body {
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: white;
+    }
+
+    /* Title */
     .main-title {
-        font-size: 42px;
-        font-weight: bold;
-        color: #00adb5;
+        font-size: 48px;
+        font-weight: 700;
+        color: #00e6e6;
+        margin-bottom: 5px;
     }
 
     .subtitle {
-        color: #b0bec5;
-        margin-bottom: 25px;
+        font-size: 18px;
+        color: #cfd8dc;
+        margin-bottom: 30px;
     }
 
+    /* Card */
     .card {
-        background: #1c1f26;
+        background: #1f2a38;
         padding: 20px;
         border-radius: 15px;
         margin-bottom: 15px;
+        box-shadow: 0px 6px 15px rgba(0,0,0,0.4);
+        transition: 0.3s;
     }
 
+    .card:hover {
+        transform: scale(1.02);
+    }
+
+    /* Buttons */
     .stButton > button {
-        background-color: #00adb5;
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
         color: white;
-        border-radius: 10px;
-        height: 45px;
+        border-radius: 12px;
+        height: 50px;
+        font-size: 16px;
+        border: none;
         width: 100%;
     }
+
+    .stButton > button:hover {
+        opacity: 0.9;
+    }
+
+    /* Section headers */
+    h2, h3 {
+        color: #00e6e6;
+    }
+
     </style>
     """, unsafe_allow_html=True)
 
@@ -60,7 +84,7 @@ load_css()
 
 
 # =========================
-# 🔥 TRAIN MODEL (NO PICKLE)
+# 🔥 MODEL (CACHED)
 # =========================
 @st.cache_resource
 def get_model():
@@ -70,28 +94,47 @@ model, vectorizer = get_model()
 
 
 # =========================
+# 📌 SIDEBAR
+# =========================
+with st.sidebar:
+    st.title("📊 Dashboard Info")
+    st.write("Upload resumes and match them with job descriptions.")
+    st.markdown("---")
+    st.write("### 💡 Tips")
+    st.write("- Use detailed job descriptions")
+    st.write("- Upload multiple resumes")
+    st.write("- Include skills in JD")
+
+
+# =========================
 # 🧠 HEADER
 # =========================
-st.markdown('<div class="main-title">AI Resume Screening System</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Analyze resumes and rank candidates using AI</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">🤖 AI Resume Screening System</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Smart hiring powered by AI & NLP</div>', unsafe_allow_html=True)
 
 
 # =========================
-# 📄 INPUT
+# 📄 INPUT SECTION
 # =========================
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    job_desc = st.text_area("Job Description", height=200)
+    st.markdown("### 📄 Job Description")
+    job_desc = st.text_area(
+        "",
+        height=200,
+        placeholder="Paste job description here..."
+    )
 
 with col2:
-    files = st.file_uploader("Upload Resumes", type=["pdf"], accept_multiple_files=True)
+    st.markdown("### 📂 Upload Resumes")
+    files = st.file_uploader("", type=["pdf"], accept_multiple_files=True)
 
 
 # =========================
 # 🚀 BUTTON
 # =========================
-if st.button("Analyze Candidates"):
+if st.button("🚀 Analyze Candidates"):
 
     valid, msg = validate_input(job_desc, files)
     if not valid:
@@ -103,7 +146,7 @@ if st.button("Analyze Candidates"):
 
     results = []
 
-    with st.spinner("Analyzing..."):
+    with st.spinner("Analyzing resumes..."):
 
         for file in files:
             try:
@@ -134,26 +177,30 @@ if st.button("Analyze Candidates"):
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-        st.subheader("Ranked Candidates")
+        st.markdown("## 🏆 Top Candidates")
 
         for i, r in enumerate(results):
+
             st.markdown(f"""
             <div class="card">
                 <h3>#{i+1} — {r['name']}</h3>
-                <p>🎯 Score: {r['score']}%</p>
-                <p>💼 Role: {r['role']}</p>
+                <p>🎯 Score: <b>{r['score']}%</b></p>
+                <p>💼 Role: <b>{r['role']}</b></p>
                 <p>🛠 Skills: {format_skills(r['skills'])}</p>
             </div>
             """, unsafe_allow_html=True)
 
             st.progress(r["score"] / 100)
 
+        # Summary
         top = results[0]
 
+        st.markdown("## 📊 Summary")
+
         c1, c2, c3 = st.columns(3)
-        c1.metric("Top Candidate", top["name"])
-        c2.metric("Score", f"{top['score']}%")
-        c3.metric("Role", top["role"])
+        c1.metric("🏆 Top Candidate", top["name"])
+        c2.metric("🎯 Score", f"{top['score']}%")
+        c3.metric("💼 Role", top["role"])
 
     else:
         st.error("No valid resumes found")
@@ -163,4 +210,4 @@ if st.button("Analyze Candidates"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("AI Resume Screening System")
+st.markdown("✨ Built with AI, NLP & Streamlit | Premium Dashboard UI")
