@@ -13,101 +13,128 @@ from config import SKILLS_PATH
 
 
 # =========================
-# 🎨 WORLD-CLASS CSS
+# 🎨 THEME-AWARE + ANIMATION CSS
 # =========================
 def load_css():
     st.markdown("""
     <style>
 
+    /* ================= BACKGROUND ANIMATION ================= */
     .stApp {
-        background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
-        background-attachment: fixed;
+        background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1e3c72);
+        background-size: 400% 400%;
+        animation: gradientMove 12s ease infinite;
     }
 
-    .stApp::before {
-        content: "";
-        position: fixed;
-        width: 600px;
-        height: 600px;
-        top: -200px;
-        left: -200px;
-        background: radial-gradient(circle, rgba(0,255,255,0.2), transparent);
-        filter: blur(120px);
-        z-index: -1;
+    @keyframes gradientMove {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
 
-    .stApp::after {
-        content: "";
-        position: fixed;
-        width: 600px;
-        height: 600px;
-        bottom: -200px;
-        right: -200px;
-        background: radial-gradient(circle, rgba(0,140,255,0.2), transparent);
-        filter: blur(120px);
-        z-index: -1;
+    /* ================= LIGHT THEME FIX ================= */
+    html[data-theme="light"] .stApp {
+        background: linear-gradient(-45deg, #f5f7fa, #e4ecf7, #d6e4ff, #f0f5ff);
+        background-size: 400% 400%;
+        animation: gradientMove 12s ease infinite;
     }
 
+    /* ================= TEXT ================= */
     .main-title {
-        font-size: 50px;
+        font-size: 48px;
         font-weight: 800;
-        color: #00f7ff;
-        text-shadow: 0px 0px 20px rgba(0,255,255,0.6);
+        color: #00c6ff;
+    }
+
+    html[data-theme="light"] .main-title {
+        color: #0072ff;
     }
 
     .subtitle {
+        font-size: 18px;
         color: #cfd8dc;
-        margin-bottom: 25px;
     }
 
+    html[data-theme="light"] .subtitle {
+        color: #333;
+    }
+
+    /* ================= CARD ================= */
     .card {
-        background: rgba(255,255,255,0.05);
-        backdrop-filter: blur(15px);
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(12px);
         padding: 20px;
         border-radius: 15px;
         margin-bottom: 15px;
         border: 1px solid rgba(255,255,255,0.1);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         transition: 0.3s;
+    }
+
+    html[data-theme="light"] .card {
+        background: rgba(255,255,255,0.9);
+        color: black;
     }
 
     .card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 40px rgba(0,255,255,0.3);
     }
 
+    /* ================= BUTTON ================= */
     .stButton > button {
-        background: linear-gradient(90deg, #00f7ff, #0072ff);
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
         color: white;
         border-radius: 12px;
         height: 50px;
         width: 100%;
         font-size: 16px;
-        box-shadow: 0px 0px 15px rgba(0,255,255,0.5);
     }
 
-    .stButton > button:hover {
-        transform: scale(1.03);
-    }
-
+    /* ================= INPUT ================= */
     textarea {
+        border-radius: 10px !important;
+    }
+
+    html[data-theme="dark"] textarea {
         background: rgba(255,255,255,0.05) !important;
         color: white !important;
     }
 
+    html[data-theme="light"] textarea {
+        background: white !important;
+        color: black !important;
+    }
+
+    /* ================= SIDEBAR ================= */
     section[data-testid="stSidebar"] {
-        background: rgba(20,30,40,0.85);
         backdrop-filter: blur(10px);
     }
 
+    html[data-theme="dark"] section[data-testid="stSidebar"] {
+        background: rgba(20,30,40,0.85);
+    }
+
+    html[data-theme="light"] section[data-testid="stSidebar"] {
+        background: rgba(255,255,255,0.9);
+    }
+
+    /* ================= HEADINGS ================= */
     h2, h3 {
-        color: #00f7ff;
+        color: #00c6ff;
+    }
+
+    html[data-theme="light"] h2,
+    html[data-theme="light"] h3 {
+        color: #0072ff;
     }
 
     </style>
     """, unsafe_allow_html=True)
 
 
+# =========================
+# 🚀 PAGE CONFIG
+# =========================
 st.set_page_config(page_title="AI Resume Dashboard", layout="wide")
 load_css()
 
@@ -128,6 +155,7 @@ model, vectorizer = get_model()
 with st.sidebar:
     st.title("📊 Dashboard")
     st.write("AI-powered resume analysis")
+
     st.markdown("### 💡 Tips")
     st.write("- Use detailed job descriptions")
     st.write("- Add relevant skills")
@@ -140,11 +168,7 @@ with st.sidebar:
 st.markdown('<div class="main-title">🤖 AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Smart hiring powered by AI & NLP</div>', unsafe_allow_html=True)
 
-st.markdown("""
-<div style="height:2px;
-background: linear-gradient(90deg, #00f7ff, transparent);
-margin-bottom:20px;"></div>
-""", unsafe_allow_html=True)
+st.markdown("<hr>", unsafe_allow_html=True)
 
 
 # =========================
@@ -201,12 +225,10 @@ if st.button("🚀 Analyze Candidates"):
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-        # Chart
         st.subheader("📊 Candidate Comparison")
         df = pd.DataFrame(results)
         st.bar_chart(df.set_index("name")["score"])
 
-        # Results
         st.subheader("🏆 Ranked Candidates")
 
         for r in results:
@@ -222,12 +244,11 @@ if st.button("🚀 Analyze Candidates"):
 
             st.progress(r["score"] / 100)
 
-            st.info(f"Matched due to skills: {', '.join(r['skills'][:5])}")
+            st.info(f"Matched due to: {', '.join(r['skills'][:5])}")
 
             with st.expander("📄 Resume Preview"):
                 st.write(raw_texts[r["name"]][:1000])
 
-        # Summary
         top = results[0]
 
         st.subheader("📈 Summary")
@@ -245,4 +266,4 @@ if st.button("🚀 Analyze Candidates"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("✨ AI Resume Screening System | World-Class UI")
+st.markdown("✨ AI Resume Screening System | Adaptive Theme UI")
