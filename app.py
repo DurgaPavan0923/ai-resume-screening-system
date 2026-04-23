@@ -18,6 +18,28 @@ from config import SKILLS_PATH
 def load_css():
     st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&family=Roboto:wght@400&display=swap');
+    
+    /* ===== TITLE ===== */
+    .main-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 50px;
+        color: #00e6ff !important;
+        text-shadow: 0px 0px 20px rgba(0,255,255,0.8);
+    }
+
+    /* ===== SUBTITLE ===== */
+    .subtitle {
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+        color: #d1e8ff !important;
+    }
+
+    /* ===== HEADINGS ===== */
+    h2, h3 {
+        font-family: 'Poppins', sans-serif;
+        color: #00e6ff !important;
+    }
 
     /* ================= FIX FILE UPLOADER ================= */
 
