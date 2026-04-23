@@ -13,85 +13,102 @@ from config import SKILLS_PATH
 
 
 # =========================
-# 🎨 FINAL CSS (FIXED)
+# 🎨 CLEAN CSS (FIXED)
 # =========================
 def load_css():
     st.markdown("""
     <style>
 
-    /* ================= FIX FILE UPLOADER ================= */
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400&display=swap');
 
-    /* DARK THEME (keep as is) */
-    html[data-theme="dark"] div[data-testid="stFileUploader"] {
-        background: rgba(0,0,0,0.6);
-        border-radius: 10px;
-        padding: 10px;
+    /* ===== BACKGROUND ===== */
+    .stApp {
+        background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364);
+        background-size: 400% 400%;
+        animation: bgMove 12s ease infinite;
     }
 
-    html[data-theme="dark"] div[data-testid="stFileUploader"] * {
+    @keyframes bgMove {
+        0% {background-position:0% 50%;}
+        50% {background-position:100% 50%;}
+        100% {background-position:0% 50%;}
+    }
+
+    /* ===== TITLE ===== */
+    .main-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 48px;
+        color: #00e6ff;
+    }
+
+    /* ===== SUBTITLE ===== */
+    .subtitle {
+        font-family: 'Poppins', sans-serif;
+        color: #cfd8dc;
+    }
+
+    /* ===== HEADINGS ===== */
+    h2, h3 {
+        font-family: 'Poppins', sans-serif;
+        color: #00e6ff;
+    }
+
+    /* ===== CARD ===== */
+    .card {
+        font-family: 'Inter', sans-serif;
+        background: rgba(0,0,0,0.6);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        color: white;
+    }
+
+    /* ===== BUTTON ===== */
+    .stButton > button {
+        background: linear-gradient(90deg, #00e6ff, #0072ff);
+        color: white;
+        border-radius: 10px;
+        height: 45px;
+        font-family: 'Poppins';
+    }
+
+    /* ===== TEXT AREA ===== */
+    textarea {
+        background: rgba(0,0,0,0.6) !important;
+        color: white !important;
+        border-radius: 10px !important;
+    }
+
+    /* ===== FILE UPLOADER FIX ===== */
+    div[data-testid="stFileUploader"] {
+        background: rgba(0,0,0,0.6);
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    div[data-testid="stFileUploader"] * {
         color: white !important;
     }
 
-    /* LIGHT THEME FIX */
-    html[data-theme="light"] div[data-testid="stFileUploader"] {
-        background: #1e293b !important;   /* dark card */
-        border-radius: 10px;
-        padding: 10px;
+    /* ===== SIDEBAR ===== */
+    section[data-testid="stSidebar"] {
+        background: rgba(0,0,0,0.8);
     }
 
-    html[data-theme="light"] div[data-testid="stFileUploader"] * {
-        color: white !important;  /* force visible text */
-    }
-
-    /* Fix file name boxes */
-    html[data-theme="light"] div[data-testid="stFileUploader"] section {
-        background: #111827 !important;
-        border-radius: 8px;
-    }
-
-    /* Fix icons */
-    html[data-theme="light"] div[data-testid="stFileUploader"] svg {
-        fill: white !important;
+    /* ===== FIX FLOAT MENU ===== */
+    div[data-testid="stToolbar"] {
+        background: transparent !important;
     }
 
     </style>
     """, unsafe_allow_html=True)
 
+
 # =========================
 # PAGE CONFIG
 # =========================
-st.markdown("""
-<div style="
-    padding: 20px 0px 10px 0px;
-">
-    <h1 style="
-        font-family: 'Orbitron', sans-serif;
-        font-size: 42px;
-        margin-bottom: 5px;
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    ">
-        🤖 AI Resume Screening Dashboard
-    </h1>
-
-    <p style="
-        font-family: 'Poppins', sans-serif;
-        font-size: 18px;
-        color: #555;
-        margin-top: 0px;
-    ">
-        Smart hiring powered by AI & NLP
-    </p>
-
-    <div style="
-        height: 3px;
-        width: 100%;
-        background: linear-gradient(90deg, #00c6ff, transparent);
-        margin-top: 10px;
-    "></div>
-</div>
-""", unsafe_allow_html=True)
+st.set_page_config(page_title="AI Resume Dashboard", layout="wide")
+load_css()
 
 
 # =========================
@@ -120,38 +137,10 @@ with st.sidebar:
 # =========================
 # HEADER
 # =========================
-st.markdown("""
-<div style="
-    padding: 20px 0px 10px 0px;
-">
-    <h1 style="
-        font-family: 'Orbitron', sans-serif;
-        font-size: 42px;
-        margin-bottom: 5px;
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    ">
-        🤖 AI Resume Screening Dashboard
-    </h1>
+st.markdown('<div class="main-title">🤖 AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Smart hiring powered by AI</div>', unsafe_allow_html=True)
+st.markdown("<hr>", unsafe_allow_html=True)
 
-    <p style="
-        font-family: 'Poppins', sans-serif;
-        font-size: 18px;
-        color: #555;
-        margin-top: 0px;
-    ">
-        Smart hiring powered by AI & NLP
-    </p>
-
-    <div style="
-        height: 3px;
-        width: 100%;
-        background: linear-gradient(90deg, #00c6ff, transparent);
-        margin-top: 10px;
-    "></div>
-</div>
-""", unsafe_allow_html=True)
 
 # =========================
 # INPUT
@@ -191,23 +180,18 @@ if st.button("🚀 Analyze Candidates"):
         skills = extract_skills(clean, skills_db)
         role = predict_role(clean, model, vectorizer)
 
-        jd_skills = extract_skills(job_clean, skills_db)
-        match_percent = 0
-        if jd_skills:
-            match_percent = len(set(skills) & set(jd_skills)) / len(jd_skills) * 100
-
         results.append({
             "name": file.name,
             "score": normalize_score(score),
             "skills": skills,
-            "role": role,
-            "match_percent": round(match_percent, 2)
+            "role": role
         })
 
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
 
         st.subheader("📊 Candidate Comparison")
+
         df = pd.DataFrame(results)
         st.bar_chart(df.set_index("name")["score"])
 
@@ -220,25 +204,13 @@ if st.button("🚀 Analyze Candidates"):
                 <p>🎯 Score: {r['score']}%</p>
                 <p>💼 Role: {r['role']}</p>
                 <p>🛠 Skills: {format_skills(r['skills'])}</p>
-                <p>🎯 Skill Match: {r['match_percent']}%</p>
             </div>
             """, unsafe_allow_html=True)
 
             st.progress(r["score"] / 100)
 
-            st.info(f"Matched due to: {', '.join(r['skills'][:5])}")
-
             with st.expander("📄 Resume Preview"):
                 st.write(raw_texts[r["name"]][:1000])
-
-        top = results[0]
-
-        st.subheader("📈 Summary")
-        c1, c2, c3 = st.columns(3)
-
-        c1.metric("Top Candidate", top["name"])
-        c2.metric("Score", f"{top['score']}%")
-        c3.metric("Role", top["role"])
 
     else:
         st.error("No valid resumes found")
@@ -248,4 +220,4 @@ if st.button("🚀 Analyze Candidates"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("✨ AI Resume Screening System | Clean UI")
+st.markdown("✨ Clean & Fixed UI")
