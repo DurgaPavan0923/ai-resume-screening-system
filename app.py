@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 from src.pdf_parser import parse_pdf
 from src.preprocess import clean_text
@@ -12,79 +13,48 @@ from config import SKILLS_PATH
 
 
 # =========================
-# 🎨 PREMIUM CSS
+# 🎨 PREMIUM UI
 # =========================
 def load_css():
     st.markdown("""
     <style>
-
-    /* Page */
     body {
         background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
         color: white;
     }
 
-    /* Title */
     .main-title {
         font-size: 48px;
-        font-weight: 700;
+        font-weight: bold;
         color: #00e6e6;
-        margin-bottom: 5px;
     }
 
-    .subtitle {
-        font-size: 18px;
-        color: #cfd8dc;
-        margin-bottom: 30px;
-    }
-
-    /* Card */
     .card {
         background: #1f2a38;
         padding: 20px;
         border-radius: 15px;
         margin-bottom: 15px;
         box-shadow: 0px 6px 15px rgba(0,0,0,0.4);
-        transition: 0.3s;
     }
 
-    .card:hover {
-        transform: scale(1.02);
-    }
-
-    /* Buttons */
     .stButton > button {
         background: linear-gradient(90deg, #00c6ff, #0072ff);
         color: white;
         border-radius: 12px;
         height: 50px;
-        font-size: 16px;
-        border: none;
         width: 100%;
+        font-size: 16px;
     }
-
-    .stButton > button:hover {
-        opacity: 0.9;
-    }
-
-    /* Section headers */
-    h2, h3 {
-        color: #00e6e6;
-    }
-
     </style>
     """, unsafe_allow_html=True)
 
 
-# =========================
-# 🚀 PAGE CONFIG
-# =========================
-st.set_page_config(page_title="AI Resume Matcher", layout="wide")
+st.set_page_config(page_title="AI Resume Dashboard", layout="wide")
 load_css()
 
 
 # =========================
-# 🔥 MODEL (CACHED)
+# 🧠 MODEL
 # =========================
 @st.cache_resource
 def get_model():
@@ -94,45 +64,40 @@ model, vectorizer = get_model()
 
 
 # =========================
-# 📌 SIDEBAR
+# 📊 SIDEBAR
 # =========================
 with st.sidebar:
-    st.title("📊 Dashboard Info")
-    st.write("Upload resumes and match them with job descriptions.")
-    st.markdown("---")
-    st.write("### 💡 Tips")
+    st.title("📊 Dashboard")
+    st.markdown("### 💡 Tips")
     st.write("- Use detailed job descriptions")
+    st.write("- Include skills")
     st.write("- Upload multiple resumes")
-    st.write("- Include skills in JD")
+
+    st.markdown("---")
+    st.write("🚀 Built with AI & NLP")
 
 
 # =========================
 # 🧠 HEADER
 # =========================
-st.markdown('<div class="main-title">🤖 AI Resume Screening System</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Smart hiring powered by AI & NLP</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">🤖 AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
+st.write("Smart hiring powered by AI")
 
 
 # =========================
-# 📄 INPUT SECTION
+# INPUT
 # =========================
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    st.markdown("### 📄 Job Description")
-    job_desc = st.text_area(
-        "",
-        height=200,
-        placeholder="Paste job description here..."
-    )
+    job_desc = st.text_area("📄 Job Description", height=200)
 
 with col2:
-    st.markdown("### 📂 Upload Resumes")
-    files = st.file_uploader("", type=["pdf"], accept_multiple_files=True)
+    files = st.file_uploader("📂 Upload Resumes", type=["pdf"], accept_multiple_files=True)
 
 
 # =========================
-# 🚀 BUTTON
+# ANALYZE
 # =========================
 if st.button("🚀 Analyze Candidates"):
 
@@ -145,62 +110,87 @@ if st.button("🚀 Analyze Candidates"):
     job_clean = clean_text(job_desc)
 
     results = []
+    raw_texts = {}
 
     with st.spinner("Analyzing resumes..."):
 
         for file in files:
-            try:
-                text = parse_pdf(file)
+            text = parse_pdf(file)
+            raw_texts[file.name] = text
 
-                if not text.strip():
-                    continue
+            clean = clean_text(text)
 
-                clean = clean_text(text)
+            score = compute_similarity(job_clean, clean, vectorizer)
+            skills = extract_skills(clean, skills_db)
+            role = predict_role(clean, model, vectorizer)
 
-                score = compute_similarity(job_clean, clean, vectorizer)
-                skills = extract_skills(clean, skills_db)
-                role = predict_role(clean, model, vectorizer)
+            # Skill match %
+            jd_skills = extract_skills(job_clean, skills_db)
+            match_percent = 0
+            if jd_skills:
+                match_percent = len(set(skills) & set(jd_skills)) / len(jd_skills) * 100
 
-                results.append({
-                    "name": file.name,
-                    "score": normalize_score(score),
-                    "skills": skills,
-                    "role": role
-                })
+            results.append({
+                "name": file.name,
+                "score": normalize_score(score),
+                "skills": skills,
+                "role": role,
+                "match_percent": round(match_percent, 2)
+            })
 
-            except Exception as e:
-                st.error(f"{file.name}: {e}")
-
-    # =========================
-    # 📊 RESULTS
-    # =========================
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-        st.markdown("## 🏆 Top Candidates")
+        # =========================
+        # 📊 GRAPH
+        # =========================
+        st.subheader("📊 Candidate Comparison")
 
-        for i, r in enumerate(results):
+        df = pd.DataFrame(results)
+        st.bar_chart(df.set_index("name")["score"])
 
+        # =========================
+        # 🏆 RESULTS
+        # =========================
+        st.subheader("🏆 Ranked Candidates")
+
+        for r in results:
             st.markdown(f"""
             <div class="card">
-                <h3>#{i+1} — {r['name']}</h3>
-                <p>🎯 Score: <b>{r['score']}%</b></p>
-                <p>💼 Role: <b>{r['role']}</b></p>
+                <h3>{r['name']}</h3>
+                <p>🎯 Score: {r['score']}%</p>
+                <p>💼 Role: {r['role']}</p>
                 <p>🛠 Skills: {format_skills(r['skills'])}</p>
+                <p>🎯 Skill Match: {r['match_percent']}%</p>
             </div>
             """, unsafe_allow_html=True)
 
             st.progress(r["score"] / 100)
 
-        # Summary
+            # =========================
+            # 🧠 WHY MATCHED
+            # =========================
+            st.info(
+                f"Matched because of skills: {', '.join(r['skills'][:5])}"
+            )
+
+            # =========================
+            # 📄 RESUME PREVIEW
+            # =========================
+            with st.expander("📄 View Resume Text"):
+                st.write(raw_texts[r["name"]][:1000])
+
+        # =========================
+        # 📈 SUMMARY
+        # =========================
         top = results[0]
 
-        st.markdown("## 📊 Summary")
-
+        st.subheader("📈 Summary")
         c1, c2, c3 = st.columns(3)
-        c1.metric("🏆 Top Candidate", top["name"])
-        c2.metric("🎯 Score", f"{top['score']}%")
-        c3.metric("💼 Role", top["role"])
+
+        c1.metric("Top Candidate", top["name"])
+        c2.metric("Score", f"{top['score']}%")
+        c3.metric("Role", top["role"])
 
     else:
         st.error("No valid resumes found")
@@ -210,4 +200,4 @@ if st.button("🚀 Analyze Candidates"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("✨ Built with AI, NLP & Streamlit | Premium Dashboard UI")
+st.markdown("✨ AI Resume Screening System | Next-Level Dashboard")
