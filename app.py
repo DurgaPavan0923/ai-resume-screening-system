@@ -13,38 +13,97 @@ from config import SKILLS_PATH
 
 
 # =========================
-# 🎨 PREMIUM UI
+# 🎨 WORLD-CLASS CSS
 # =========================
 def load_css():
     st.markdown("""
     <style>
-    body {
-        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-        color: white;
+
+    .stApp {
+        background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+        background-attachment: fixed;
+    }
+
+    .stApp::before {
+        content: "";
+        position: fixed;
+        width: 600px;
+        height: 600px;
+        top: -200px;
+        left: -200px;
+        background: radial-gradient(circle, rgba(0,255,255,0.2), transparent);
+        filter: blur(120px);
+        z-index: -1;
+    }
+
+    .stApp::after {
+        content: "";
+        position: fixed;
+        width: 600px;
+        height: 600px;
+        bottom: -200px;
+        right: -200px;
+        background: radial-gradient(circle, rgba(0,140,255,0.2), transparent);
+        filter: blur(120px);
+        z-index: -1;
     }
 
     .main-title {
-        font-size: 48px;
-        font-weight: bold;
-        color: #00e6e6;
+        font-size: 50px;
+        font-weight: 800;
+        color: #00f7ff;
+        text-shadow: 0px 0px 20px rgba(0,255,255,0.6);
+    }
+
+    .subtitle {
+        color: #cfd8dc;
+        margin-bottom: 25px;
     }
 
     .card {
-        background: #1f2a38;
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(15px);
         padding: 20px;
         border-radius: 15px;
         margin-bottom: 15px;
-        box-shadow: 0px 6px 15px rgba(0,0,0,0.4);
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        transition: 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 40px rgba(0,255,255,0.3);
     }
 
     .stButton > button {
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        background: linear-gradient(90deg, #00f7ff, #0072ff);
         color: white;
         border-radius: 12px;
         height: 50px;
         width: 100%;
         font-size: 16px;
+        box-shadow: 0px 0px 15px rgba(0,255,255,0.5);
     }
+
+    .stButton > button:hover {
+        transform: scale(1.03);
+    }
+
+    textarea {
+        background: rgba(255,255,255,0.05) !important;
+        color: white !important;
+    }
+
+    section[data-testid="stSidebar"] {
+        background: rgba(20,30,40,0.85);
+        backdrop-filter: blur(10px);
+    }
+
+    h2, h3 {
+        color: #00f7ff;
+    }
+
     </style>
     """, unsafe_allow_html=True)
 
@@ -68,20 +127,24 @@ model, vectorizer = get_model()
 # =========================
 with st.sidebar:
     st.title("📊 Dashboard")
+    st.write("AI-powered resume analysis")
     st.markdown("### 💡 Tips")
     st.write("- Use detailed job descriptions")
-    st.write("- Include skills")
+    st.write("- Add relevant skills")
     st.write("- Upload multiple resumes")
-
-    st.markdown("---")
-    st.write("🚀 Built with AI & NLP")
 
 
 # =========================
 # 🧠 HEADER
 # =========================
 st.markdown('<div class="main-title">🤖 AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
-st.write("Smart hiring powered by AI")
+st.markdown('<div class="subtitle">Smart hiring powered by AI & NLP</div>', unsafe_allow_html=True)
+
+st.markdown("""
+<div style="height:2px;
+background: linear-gradient(90deg, #00f7ff, transparent);
+margin-bottom:20px;"></div>
+""", unsafe_allow_html=True)
 
 
 # =========================
@@ -112,46 +175,38 @@ if st.button("🚀 Analyze Candidates"):
     results = []
     raw_texts = {}
 
-    with st.spinner("Analyzing resumes..."):
+    for file in files:
+        text = parse_pdf(file)
+        raw_texts[file.name] = text
 
-        for file in files:
-            text = parse_pdf(file)
-            raw_texts[file.name] = text
+        clean = clean_text(text)
 
-            clean = clean_text(text)
+        score = compute_similarity(job_clean, clean, vectorizer)
+        skills = extract_skills(clean, skills_db)
+        role = predict_role(clean, model, vectorizer)
 
-            score = compute_similarity(job_clean, clean, vectorizer)
-            skills = extract_skills(clean, skills_db)
-            role = predict_role(clean, model, vectorizer)
+        jd_skills = extract_skills(job_clean, skills_db)
+        match_percent = 0
+        if jd_skills:
+            match_percent = len(set(skills) & set(jd_skills)) / len(jd_skills) * 100
 
-            # Skill match %
-            jd_skills = extract_skills(job_clean, skills_db)
-            match_percent = 0
-            if jd_skills:
-                match_percent = len(set(skills) & set(jd_skills)) / len(jd_skills) * 100
-
-            results.append({
-                "name": file.name,
-                "score": normalize_score(score),
-                "skills": skills,
-                "role": role,
-                "match_percent": round(match_percent, 2)
-            })
+        results.append({
+            "name": file.name,
+            "score": normalize_score(score),
+            "skills": skills,
+            "role": role,
+            "match_percent": round(match_percent, 2)
+        })
 
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-        # =========================
-        # 📊 GRAPH
-        # =========================
+        # Chart
         st.subheader("📊 Candidate Comparison")
-
         df = pd.DataFrame(results)
         st.bar_chart(df.set_index("name")["score"])
 
-        # =========================
-        # 🏆 RESULTS
-        # =========================
+        # Results
         st.subheader("🏆 Ranked Candidates")
 
         for r in results:
@@ -167,22 +222,12 @@ if st.button("🚀 Analyze Candidates"):
 
             st.progress(r["score"] / 100)
 
-            # =========================
-            # 🧠 WHY MATCHED
-            # =========================
-            st.info(
-                f"Matched because of skills: {', '.join(r['skills'][:5])}"
-            )
+            st.info(f"Matched due to skills: {', '.join(r['skills'][:5])}")
 
-            # =========================
-            # 📄 RESUME PREVIEW
-            # =========================
-            with st.expander("📄 View Resume Text"):
+            with st.expander("📄 Resume Preview"):
                 st.write(raw_texts[r["name"]][:1000])
 
-        # =========================
-        # 📈 SUMMARY
-        # =========================
+        # Summary
         top = results[0]
 
         st.subheader("📈 Summary")
@@ -200,4 +245,4 @@ if st.button("🚀 Analyze Candidates"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("✨ AI Resume Screening System | Next-Level Dashboard")
+st.markdown("✨ AI Resume Screening System | World-Class UI")
