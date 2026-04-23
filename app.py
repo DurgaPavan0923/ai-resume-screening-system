@@ -60,8 +60,38 @@ def load_css():
 # =========================
 # PAGE CONFIG
 # =========================
-st.set_page_config(page_title="AI Resume Dashboard", layout="wide")
-load_css()
+st.markdown("""
+<div style="
+    padding: 20px 0px 10px 0px;
+">
+    <h1 style="
+        font-family: 'Orbitron', sans-serif;
+        font-size: 42px;
+        margin-bottom: 5px;
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    ">
+        🤖 AI Resume Screening Dashboard
+    </h1>
+
+    <p style="
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+        color: #555;
+        margin-top: 0px;
+    ">
+        Smart hiring powered by AI & NLP
+    </p>
+
+    <div style="
+        height: 3px;
+        width: 100%;
+        background: linear-gradient(90deg, #00c6ff, transparent);
+        margin-top: 10px;
+    "></div>
+</div>
+""", unsafe_allow_html=True)
 
 
 # =========================
