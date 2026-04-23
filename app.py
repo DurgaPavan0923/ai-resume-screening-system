@@ -18,6 +18,57 @@ from config import SKILLS_PATH
 def load_css():
     st.markdown("""
     <style>
+
+    /* ===== MAIN ANIMATED BACKGROUND ===== */
+    .stApp {
+        background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1e3c72);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+        position: relative;
+        overflow: hidden;
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* ===== GLOWING BLOBS ===== */
+    .stApp::before {
+        content: "";
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(0,255,255,0.25), transparent);
+        top: -150px;
+        left: -150px;
+        animation: float1 10s infinite alternate ease-in-out;
+        filter: blur(100px);
+    }
+
+    .stApp::after {
+        content: "";
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(0,140,255,0.25), transparent);
+        bottom: -150px;
+        right: -150px;
+        animation: float2 12s infinite alternate ease-in-out;
+        filter: blur(100px);
+    }
+
+    @keyframes float1 {
+        0% { transform: translate(0px, 0px); }
+        100% { transform: translate(100px, 80px); }
+    }
+
+    @keyframes float2 {
+        0% { transform: translate(0px, 0px); }
+        100% { transform: translate(-120px, -90px); }
+    }
+
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&family=Roboto:wght@400&display=swap');
     
     /* ===== TITLE ===== */
