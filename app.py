@@ -46,7 +46,20 @@ def load_css():
         color: #00e6ff !important;
     }
 
-    
+    /* ===== THEME VARIABLES ===== */
+    :root {
+        --text-color: #111;
+        --card-bg: rgba(255,255,255,0.6);
+        --border-color: rgba(0,0,0,0.1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --text-color: #fff;
+            --card-bg: rgba(255,255,255,0.08);
+            --border-color: rgba(255,255,255,0.2);
+        }
+    }
 
     /* ===== GLASS CARD ===== */
     .card {
