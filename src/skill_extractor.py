@@ -3,8 +3,17 @@ def load_skills(path):
 
     with open(path) as f:
         for line in f:
-            name, weight = line.strip().split(",")
-            skills[name.lower()] = int(weight)
+            line = line.strip().lower()
+
+            if not line:
+                continue
+
+            # ✅ Handle both formats
+            if "," in line:
+                name, weight = line.split(",")
+                skills[name] = int(weight)
+            else:
+                skills[line] = 1  # default weight
 
     return skills
 
