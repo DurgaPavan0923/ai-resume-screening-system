@@ -18,7 +18,7 @@ from config import SKILLS_PATH
 
 
 # =========================
-# 🎨 CSS
+# CSS
 # =========================
 def load_css():
     st.markdown("""
