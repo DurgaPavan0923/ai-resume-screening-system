@@ -5,3 +5,4 @@ pandas
 pdfminer.six
 pymupdf
 pickle-mixin
+openai
