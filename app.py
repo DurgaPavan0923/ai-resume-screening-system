@@ -11,6 +11,7 @@ from src.experience_extractor import extract_experience
 from src.education_parser import extract_education
 from src.explainer import generate_explanation
 from src.highlighter import highlight_text
+from src.gpt_analyzer import analyze_resume
 
 from utils.helpers import validate_input, format_skills
 from config import SKILLS_PATH
@@ -24,6 +25,7 @@ def load_css():
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&display=swap');
 
+    /* ===== TITLE ===== */
     .main-title {
         font-family: 'Orbitron', sans-serif;
         font-size: 50px;
@@ -31,12 +33,14 @@ def load_css():
         text-shadow: 0px 0px 20px rgba(0,255,255,0.8);
     }
 
+    /* ===== SUBTITLE ===== */
     .subtitle {
         font-family: 'Poppins', sans-serif;
         font-size: 18px;
         color: #010c0d !important;
     }
 
+    /* ===== HEADINGS ===== */
     h2, h3 {
         font-family: 'Poppins', sans-serif;
         color: #00e6ff !important;
@@ -136,14 +140,13 @@ if st.button("Analyze Candidates"):
         try:
             text = parse_pdf(file)
 
-            # ✅ Prevent empty PDF crash
             if not text.strip():
                 continue
 
             raw_texts[file.name] = text
             clean = clean_text(text)
 
-            # 🔥 AI LOGIC
+            # 🔥 CORE AI LOGIC
             similarity_score = compute_similarity(job_clean, clean, vectorizer)
 
             skills = extract_skills(clean, skills_db) or {}
@@ -156,7 +159,10 @@ if st.button("Analyze Candidates"):
 
             role = predict_role(clean, model, vectorizer)
 
-            # 🎯 FINAL SCORE (SAFE)
+            # 🧠 GPT ANALYSIS
+            gpt_analysis = analyze_resume(text, job_desc)
+
+            # 🎯 FINAL SCORE
             final_score = (
                 0.5 * similarity_score +
                 0.3 * skill_score +
@@ -175,7 +181,8 @@ if st.button("Analyze Candidates"):
                 "match_percent": round(skill_score * 100, 2),
                 "experience": experience,
                 "education": education,
-                "explanation": explanation
+                "explanation": explanation,
+                "gpt_analysis": gpt_analysis
             })
 
         except Exception as e:
@@ -187,10 +194,26 @@ if st.button("Analyze Candidates"):
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-        st.subheader("Candidate Comparison")
+        # 📊 RECRUITER DASHBOARD
+        st.subheader("Recruiter Dashboard")
+
         df = pd.DataFrame(results)
+
+        col1, col2, col3 = st.columns(3)
+
+        col1.metric("Avg Score", round(df["score"].mean(), 2))
+        col2.metric("Avg Experience", round(df["experience"].mean(), 1))
+        col3.metric("Total Candidates", len(df))
+
+        st.markdown("### Score Distribution")
         st.bar_chart(df.set_index("name")["score"])
 
+        st.markdown("### Experience Distribution")
+        st.line_chart(df["experience"])
+
+        # =========================
+        # CANDIDATES
+        # =========================
         st.subheader("Ranked Candidates")
 
         for r in results:
@@ -210,7 +233,11 @@ if st.button("Analyze Candidates"):
 
             st.progress(r["score"] / 100)
 
-            # 🔥 Highlight Fix
+            # 🧠 GPT ANALYSIS DISPLAY
+            with st.expander("AI Analysis"):
+                st.write(r["gpt_analysis"])
+
+            # ✨ HIGHLIGHTED RESUME
             with st.expander("Resume Highlight"):
                 keywords = list(r["skills"].keys()) if isinstance(r["skills"], dict) else r["skills"]
 
