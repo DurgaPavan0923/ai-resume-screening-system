@@ -103,7 +103,7 @@ with st.sidebar:
 # =========================
 # HEADER
 # =========================
-st.markdown('<div class="main-title">🤖 AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title"> AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Smart hiring powered by AI</div>', unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -114,16 +114,16 @@ st.markdown("<hr>", unsafe_allow_html=True)
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    job_desc = st.text_area("📄 Job Description", height=200)
+    job_desc = st.text_area("Job Description", height=200)
 
 with col2:
-    files = st.file_uploader("📂 Upload Resumes", type=["pdf"], accept_multiple_files=True)
+    files = st.file_uploader("Upload Resumes", type=["pdf"], accept_multiple_files=True)
 
 
 # =========================
 # ANALYZE
 # =========================
-if st.button("🚀 Analyze Candidates"):
+if st.button("Analyze Candidates"):
 
     valid, msg = validate_input(job_desc, files)
     if not valid:
@@ -181,31 +181,31 @@ if st.button("🚀 Analyze Candidates"):
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-        st.subheader("📊 Candidate Comparison")
+        st.subheader("Candidate Comparison")
         df = pd.DataFrame(results)
         st.bar_chart(df.set_index("name")["score"])
 
-        st.subheader("🏆 Ranked Candidates")
+        st.subheader("Ranked Candidates")
 
         for r in results:
 
             st.markdown(f"""
             <div class="card">
                 <h3>{r['name']}</h3>
-                <p>🎯 Score: {r['score']}%</p>
-                <p>💼 Role: {r['role']}</p>
-                <p>🛠 Skills: {format_skills(r['skills'])}</p>
-                <p>🎯 Skill Match: {r['match_percent']}%</p>
-                <p>📅 Experience: {r['experience']} years</p>
-                <p>🎓 Education: {', '.join(r['education'])}</p>
-                <p>🧠 {r['explanation']}</p>
+                <p>Score: {r['score']}%</p>
+                <p>Role: {r['role']}</p>
+                <p>Skills: {format_skills(r['skills'])}</p>
+                <p>Skill Match: {r['match_percent']}%</p>
+                <p>Experience: {r['experience']} years</p>
+                <p>Education: {', '.join(r['education'])}</p>
+                <p>{r['explanation']}</p>
             </div>
             """, unsafe_allow_html=True)
 
             st.progress(r["score"] / 100)
 
             # ✨ HIGHLIGHTED RESUME
-            with st.expander("📄 Resume Highlight"):
+            with st.expander("Resume Highlight"):
                 highlighted = highlight_text(
                     raw_texts[r["name"]],
                     list(r["skills"].keys())
@@ -215,7 +215,7 @@ if st.button("🚀 Analyze Candidates"):
         # SUMMARY
         top = results[0]
 
-        st.subheader("📈 Summary")
+        st.subheader("Summary")
         c1, c2, c3 = st.columns(3)
 
         c1.metric("Top Candidate", top["name"])
@@ -230,4 +230,4 @@ if st.button("🚀 Analyze Candidates"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("✨ Advanced AI Resume Screening System")
+st.markdown("Advanced AI Resume Screening System")
