@@ -24,7 +24,6 @@ def load_css():
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&display=swap');
 
-   /* ===== TITLE ===== */
     .main-title {
         font-family: 'Orbitron', sans-serif;
         font-size: 50px;
@@ -32,14 +31,12 @@ def load_css():
         text-shadow: 0px 0px 20px rgba(0,255,255,0.8);
     }
 
-    /* ===== SUBTITLE ===== */
     .subtitle {
         font-family: 'Poppins', sans-serif;
         font-size: 18px;
         color: #010c0d !important;
     }
 
-    /* ===== HEADINGS ===== */
     h2, h3 {
         font-family: 'Poppins', sans-serif;
         color: #00e6ff !important;
@@ -74,7 +71,7 @@ model, vectorizer = get_model()
 
 
 # =========================
-# HELPER (NEW)
+# HELPER
 # =========================
 def skill_match_score(jd_skills, resume_skills, skills_db):
     if not jd_skills:
@@ -86,7 +83,6 @@ def skill_match_score(jd_skills, resume_skills, skills_db):
     return matched / total if total else 0
 
 
-
 # =========================
 # SIDEBAR
 # =========================
@@ -94,7 +90,7 @@ with st.sidebar:
     st.title("Dashboard")
     st.write("AI Resume Analyzer")
 
-    st.markdown("###  Tips")
+    st.markdown("### Tips")
     st.write("✔ Use detailed job descriptions")
     st.write("✔ Add skills")
     st.write("✔ Upload multiple resumes")
@@ -103,7 +99,7 @@ with st.sidebar:
 # =========================
 # HEADER
 # =========================
-st.markdown('<div class="main-title"> AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Smart hiring powered by AI</div>', unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -137,43 +133,53 @@ if st.button("Analyze Candidates"):
     raw_texts = {}
 
     for file in files:
-        text = parse_pdf(file)
-        raw_texts[file.name] = text
+        try:
+            text = parse_pdf(file)
 
-        clean = clean_text(text)
+            # ✅ Prevent empty PDF crash
+            if not text.strip():
+                continue
 
-        # 🔥 CORE AI LOGIC
-        similarity_score = compute_similarity(job_clean, clean, vectorizer)
+            raw_texts[file.name] = text
+            clean = clean_text(text)
 
-        skills = extract_skills(clean, skills_db)
-        jd_skills = extract_skills(job_clean, skills_db)
+            # 🔥 AI LOGIC
+            similarity_score = compute_similarity(job_clean, clean, vectorizer)
 
-        skill_score = skill_match_score(jd_skills, skills, skills_db)
+            skills = extract_skills(clean, skills_db) or {}
+            jd_skills = extract_skills(job_clean, skills_db) or {}
 
-        experience = extract_experience(clean)
-        education = extract_education(clean)
+            skill_score = skill_match_score(jd_skills, skills, skills_db)
 
-        role = predict_role(clean, model, vectorizer)
+            experience = extract_experience(clean)
+            education = extract_education(clean)
 
-        # 🎯 FINAL SCORE
-        final_score = (
-            0.5 * similarity_score +
-            0.3 * skill_score +
-            0.2 * (experience / 10)
-        )
+            role = predict_role(clean, model, vectorizer)
 
-        explanation = generate_explanation(skills, experience, role)
+            # 🎯 FINAL SCORE (SAFE)
+            final_score = (
+                0.5 * similarity_score +
+                0.3 * skill_score +
+                0.2 * min(experience / 10, 1)
+            )
 
-        results.append({
-            "name": file.name,
-            "score": round(final_score * 100, 2),
-            "skills": skills,
-            "role": role,
-            "match_percent": round(skill_score * 100, 2),
-            "experience": experience,
-            "education": education,
-            "explanation": explanation
-        })
+            final_score = max(0, min(final_score, 1))
+
+            explanation = generate_explanation(skills, experience, role)
+
+            results.append({
+                "name": file.name,
+                "score": round(final_score * 100, 2),
+                "skills": skills,
+                "role": role,
+                "match_percent": round(skill_score * 100, 2),
+                "experience": experience,
+                "education": education,
+                "explanation": explanation
+            })
+
+        except Exception as e:
+            st.error(f"{file.name}: {e}")
 
     # =========================
     # RESULTS
@@ -197,22 +203,27 @@ if st.button("Analyze Candidates"):
                 <p>Skills: {format_skills(r['skills'])}</p>
                 <p>Skill Match: {r['match_percent']}%</p>
                 <p>Experience: {r['experience']} years</p>
-                <p>Education: {', '.join(r['education'])}</p>
+                <p>Education: {', '.join(r['education']) if r['education'] else "Not detected"}</p>
                 <p>{r['explanation']}</p>
             </div>
             """, unsafe_allow_html=True)
 
             st.progress(r["score"] / 100)
 
-            # ✨ HIGHLIGHTED RESUME
+            # 🔥 Highlight Fix
             with st.expander("Resume Highlight"):
+                keywords = list(r["skills"].keys()) if isinstance(r["skills"], dict) else r["skills"]
+
                 highlighted = highlight_text(
                     raw_texts[r["name"]],
-                    list(r["skills"].keys())
+                    keywords
                 )
+
                 st.markdown(highlighted, unsafe_allow_html=True)
 
+        # =========================
         # SUMMARY
+        # =========================
         top = results[0]
 
         st.subheader("Summary")
