@@ -270,7 +270,7 @@ if st.button("Analyze Candidates"):
                 
                 # AI Analysis
                 with st.expander("AI Analysis"):
-                st.write(r["gpt_analysis"])
+                    st.write(r["gpt_analysis"])
 
                 # Resume Highlight
                 with st.expander("Resume Highlight"):
