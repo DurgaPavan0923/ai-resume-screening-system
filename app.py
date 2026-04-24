@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 from src.pdf_parser import parse_pdf
 from src.preprocess import clean_text
@@ -11,7 +12,6 @@ from src.experience_extractor import extract_experience
 from src.education_parser import extract_education
 from src.explainer import generate_explanation
 from src.highlighter import highlight_text
-from src.gpt_analyzer import analyze_resume
 
 from utils.helpers import validate_input, format_skills
 from config import SKILLS_PATH
@@ -75,16 +75,27 @@ model, vectorizer = get_model()
 
 
 # =========================
-# HELPER
+# HELPERS
 # =========================
 def skill_match_score(jd_skills, resume_skills, skills_db):
     if not jd_skills:
         return 0
-
     total = sum(skills_db.get(s, 1) for s in jd_skills)
     matched = sum(skills_db.get(s, 1) for s in resume_skills if s in jd_skills)
-
     return matched / total if total else 0
+
+
+def get_decision(score):
+    if score >= 75:
+        return "<span style='color:lime'>🟢 Hire</span>"
+    elif score >= 50:
+        return "<span style='color:orange'>🟡 Consider</span>"
+    else:
+        return "<span style='color:red'>🔴 Reject</span>"
+
+
+def skill_gap(jd_skills, resume_skills):
+    return [s for s in jd_skills if s not in resume_skills]
 
 
 # =========================
@@ -146,7 +157,6 @@ if st.button("Analyze Candidates"):
             raw_texts[file.name] = text
             clean = clean_text(text)
 
-            # 🔥 CORE AI LOGIC
             similarity_score = compute_similarity(job_clean, clean, vectorizer)
 
             skills = extract_skills(clean, skills_db) or {}
@@ -159,10 +169,13 @@ if st.button("Analyze Candidates"):
 
             role = predict_role(clean, model, vectorizer)
 
-            # 🧠 GPT ANALYSIS
-            gpt_analysis = analyze_resume(text, job_desc)
+            # GPT SAFE FALLBACK
+            try:
+                from src.gpt_analyzer import analyze_resume
+                gpt_analysis = analyze_resume(text, job_desc)
+            except:
+                gpt_analysis = "AI analysis not available"
 
-            # 🎯 FINAL SCORE
             final_score = (
                 0.5 * similarity_score +
                 0.3 * skill_score +
@@ -170,19 +183,25 @@ if st.button("Analyze Candidates"):
             )
 
             final_score = max(0, min(final_score, 1))
+            final_score_percent = round(final_score * 100, 2)
+
+            decision = get_decision(final_score_percent)
+            missing_skills = skill_gap(jd_skills, skills)
 
             explanation = generate_explanation(skills, experience, role)
 
             results.append({
                 "name": file.name,
-                "score": round(final_score * 100, 2),
+                "score": final_score_percent,
                 "skills": skills,
                 "role": role,
                 "match_percent": round(skill_score * 100, 2),
                 "experience": experience,
                 "education": education,
                 "explanation": explanation,
-                "gpt_analysis": gpt_analysis
+                "gpt_analysis": gpt_analysis,
+                "decision": decision,
+                "missing_skills": missing_skills
             })
 
         except Exception as e:
@@ -194,22 +213,23 @@ if st.button("Analyze Candidates"):
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-        # 📊 RECRUITER DASHBOARD
-        st.subheader("Recruiter Dashboard")
-
         df = pd.DataFrame(results)
 
-        col1, col2, col3 = st.columns(3)
+        # DASHBOARD
+        st.subheader("Recruiter Dashboard")
 
+        col1, col2, col3 = st.columns(3)
         col1.metric("Avg Score", round(df["score"].mean(), 2))
         col2.metric("Avg Experience", round(df["experience"].mean(), 1))
-        col3.metric("Total Candidates", len(df))
+        col3.metric("Candidates", len(df))
 
-        st.markdown("### Score Distribution")
-        st.bar_chart(df.set_index("name")["score"])
+        # Plotly Charts
+        fig = px.bar(df, x="name", y="score", color="score", title="Candidate Scores")
+        st.plotly_chart(fig, use_container_width=True)
 
-        st.markdown("### Experience Distribution")
-        st.line_chart(df["experience"])
+        fig2 = px.scatter(df, x="experience", y="score", size="score",
+                          color="score", title="Experience vs Score")
+        st.plotly_chart(fig2, use_container_width=True)
 
         # =========================
         # CANDIDATES
@@ -221,10 +241,10 @@ if st.button("Analyze Candidates"):
             st.markdown(f"""
             <div class="card">
                 <h3>{r['name']}</h3>
+                <p>{r['decision']}</p>
                 <p>Score: {r['score']}%</p>
                 <p>Role: {r['role']}</p>
                 <p>Skills: {format_skills(r['skills'])}</p>
-                <p>Skill Match: {r['match_percent']}%</p>
                 <p>Experience: {r['experience']} years</p>
                 <p>Education: {', '.join(r['education']) if r['education'] else "Not detected"}</p>
                 <p>{r['explanation']}</p>
@@ -233,24 +253,24 @@ if st.button("Analyze Candidates"):
 
             st.progress(r["score"] / 100)
 
-            # 🧠 GPT ANALYSIS DISPLAY
+            # Skill Gap
+            with st.expander("Skill Gap Analysis"):
+                if r["missing_skills"]:
+                    st.write(", ".join(r["missing_skills"]))
+                else:
+                    st.write("No major gaps")
+
+            # AI Analysis
             with st.expander("AI Analysis"):
                 st.write(r["gpt_analysis"])
 
-            # ✨ HIGHLIGHTED RESUME
+            # Resume Highlight
             with st.expander("Resume Highlight"):
                 keywords = list(r["skills"].keys()) if isinstance(r["skills"], dict) else r["skills"]
-
-                highlighted = highlight_text(
-                    raw_texts[r["name"]],
-                    keywords
-                )
-
+                highlighted = highlight_text(raw_texts[r["name"]], keywords)
                 st.markdown(highlighted, unsafe_allow_html=True)
 
-        # =========================
         # SUMMARY
-        # =========================
         top = results[0]
 
         st.subheader("Summary")
