@@ -8,81 +8,53 @@ from src.similarity import compute_similarity
 from src.train import train_model
 from src.job_predictor import predict_role
 
-from utils.helpers import validate_input, normalize_score, format_skills
+# ✅ NEW IMPORTS
+from src.experience_extractor import extract_experience
+from src.education_parser import extract_education
+from src.explainer import generate_explanation
+from src.highlighter import highlight_text
+
+from utils.helpers import validate_input, format_skills
 from config import SKILLS_PATH
 
 
 # =========================
-# 🎨 FINAL CSS (FIXED)
+# 🎨 CSS (same as your working)
 # =========================
 def load_css():
     st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&display=swap');
 
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&family=Roboto:wght@400&display=swap');
-    
-    /* ===== TITLE ===== */
     .main-title {
         font-family: 'Orbitron', sans-serif;
         font-size: 50px;
-        color: #00e6ff !important;
-        text-shadow: 0px 0px 20px rgba(0,255,255,0.8);
+        color: #00e6ff;
     }
 
-    /* ===== SUBTITLE ===== */
     .subtitle {
-        font-family: 'Poppins', sans-serif;
-        font-size: 18px;
-        color: #010c0d !important;
+        font-family: 'Poppins';
+        color: #010c0d;
     }
 
-    /* ===== HEADINGS ===== */
     h2, h3 {
-        font-family: 'Poppins', sans-serif;
-        color: #00e6ff !important;
+        font-family: 'Poppins';
+        color: #00e6ff;
     }
 
-    /* ================= FIX FILE UPLOADER ================= */
-
-    /* DARK THEME (keep as is) */
-    html[data-theme="dark"] div[data-testid="stFileUploader"] {
+    .card {
         background: rgba(0,0,0,0.6);
-        border-radius: 10px;
-        padding: 10px;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        color: white;
     }
-
-    html[data-theme="dark"] div[data-testid="stFileUploader"] * {
-        color: white !important;
-    }
-
-    /* LIGHT THEME FIX */
-    html[data-theme="light"] div[data-testid="stFileUploader"] {
-        background: #1e293b !important;   /* dark card */
-        border-radius: 10px;
-        padding: 10px;
-    }
-
-    html[data-theme="light"] div[data-testid="stFileUploader"] * {
-        color: white !important;  /* force visible text */
-    }
-
-    /* Fix file name boxes */
-    html[data-theme="light"] div[data-testid="stFileUploader"] section {
-        background: #111827 !important;
-        border-radius: 8px;
-    }
-
-    /* Fix icons */
-    html[data-theme="light"] div[data-testid="stFileUploader"] svg {
-        fill: white !important;
-    }
-
     </style>
     """, unsafe_allow_html=True)
-    
+
 
 # =========================
-# PAGE CONFIG
+# CONFIG
 # =========================
 st.set_page_config(page_title="AI Resume Dashboard", layout="wide")
 load_css()
@@ -99,24 +71,33 @@ model, vectorizer = get_model()
 
 
 # =========================
+# HELPER (NEW)
+# =========================
+def skill_match_score(jd_skills, resume_skills, skills_db):
+    if not jd_skills:
+        return 0
+
+    total = sum(skills_db.get(s, 1) for s in jd_skills)
+    matched = sum(skills_db.get(s, 1) for s in resume_skills if s in jd_skills)
+
+    return matched / total if total else 0
+
+
+# =========================
 # SIDEBAR
 # =========================
 with st.sidebar:
-    st.title("Dashboard")
+    st.title("📊 Dashboard")
     st.write("AI Resume Analyzer")
-
-    st.markdown("###  Tips")
-    st.write("✔ Use detailed job descriptions")
-    st.write("✔ Add skills")
-    st.write("✔ Upload multiple resumes")
 
 
 # =========================
 # HEADER
 # =========================
-st.markdown('<div class="main-title"> AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">🤖 AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Smart hiring powered by AI</div>', unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
+
 
 # =========================
 # INPUT
@@ -124,16 +105,16 @@ st.markdown("<hr>", unsafe_allow_html=True)
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    job_desc = st.text_area(" Job Description", height=200)
+    job_desc = st.text_area("📄 Job Description", height=200)
 
 with col2:
-    files = st.file_uploader(" Upload Resumes", type=["pdf"], accept_multiple_files=True)
+    files = st.file_uploader("📂 Upload Resumes", type=["pdf"], accept_multiple_files=True)
 
 
 # =========================
 # ANALYZE
 # =========================
-if st.button(" Analyze Candidates"):
+if st.button("🚀 Analyze Candidates"):
 
     valid, msg = validate_input(job_desc, files)
     if not valid:
@@ -152,33 +133,53 @@ if st.button(" Analyze Candidates"):
 
         clean = clean_text(text)
 
-        score = compute_similarity(job_clean, clean, vectorizer)
+        # 🔥 CORE AI LOGIC
+        similarity_score = compute_similarity(job_clean, clean, vectorizer)
+
         skills = extract_skills(clean, skills_db)
+        jd_skills = extract_skills(job_clean, skills_db)
+
+        skill_score = skill_match_score(jd_skills, skills, skills_db)
+
+        experience = extract_experience(clean)
+        education = extract_education(clean)
+
         role = predict_role(clean, model, vectorizer)
 
-        jd_skills = extract_skills(job_clean, skills_db)
-        match_percent = 0
-        if jd_skills:
-            match_percent = len(set(skills) & set(jd_skills)) / len(jd_skills) * 100
+        # 🎯 FINAL SCORE
+        final_score = (
+            0.5 * similarity_score +
+            0.3 * skill_score +
+            0.2 * (experience / 10)
+        )
+
+        explanation = generate_explanation(skills, experience, role)
 
         results.append({
             "name": file.name,
-            "score": normalize_score(score),
+            "score": round(final_score * 100, 2),
             "skills": skills,
             "role": role,
-            "match_percent": round(match_percent, 2)
+            "match_percent": round(skill_score * 100, 2),
+            "experience": experience,
+            "education": education,
+            "explanation": explanation
         })
 
+    # =========================
+    # RESULTS
+    # =========================
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
 
-        st.subheader(" Candidate Comparison")
+        st.subheader("📊 Candidate Comparison")
         df = pd.DataFrame(results)
         st.bar_chart(df.set_index("name")["score"])
 
-        st.subheader(" Ranked Candidates")
+        st.subheader("🏆 Ranked Candidates")
 
         for r in results:
+
             st.markdown(f"""
             <div class="card">
                 <h3>{r['name']}</h3>
@@ -186,19 +187,26 @@ if st.button(" Analyze Candidates"):
                 <p>💼 Role: {r['role']}</p>
                 <p>🛠 Skills: {format_skills(r['skills'])}</p>
                 <p>🎯 Skill Match: {r['match_percent']}%</p>
+                <p>📅 Experience: {r['experience']} years</p>
+                <p>🎓 Education: {', '.join(r['education'])}</p>
+                <p>🧠 {r['explanation']}</p>
             </div>
             """, unsafe_allow_html=True)
 
             st.progress(r["score"] / 100)
 
-            st.info(f"Matched due to: {', '.join(r['skills'][:5])}")
+            # ✨ HIGHLIGHTED RESUME
+            with st.expander("📄 Resume Highlight"):
+                highlighted = highlight_text(
+                    raw_texts[r["name"]],
+                    list(r["skills"].keys())
+                )
+                st.markdown(highlighted, unsafe_allow_html=True)
 
-            with st.expander(" Resume Preview"):
-                st.write(raw_texts[r["name"]][:1000])
-
+        # SUMMARY
         top = results[0]
 
-        st.subheader(" Summary")
+        st.subheader("📈 Summary")
         c1, c2, c3 = st.columns(3)
 
         c1.metric("Top Candidate", top["name"])
@@ -213,4 +221,4 @@ if st.button(" Analyze Candidates"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown(" AI Resume Screening System | Clean UI")
+st.markdown("✨ Advanced AI Resume Screening System")
