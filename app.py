@@ -224,51 +224,53 @@ if st.button("Analyze Candidates"):
         col3.metric("Candidates", len(df))
 
         # Plotly Charts
-        fig = px.bar(df, x="name", y="score", color="score", title="Candidate Scores")
-        st.plotly_chart(fig, use_container_width=True)
+        colA, colB = st.columns(2)
 
-        fig2 = px.scatter(df, x="experience", y="score", size="score",
-                          color="score", title="Experience vs Score")
-        st.plotly_chart(fig2, use_container_width=True)
+        with colA:
+            fig = px.bar(df, x="name", y="score", color="score", title="Candidate Scores")
+            st.plotly_chart(fig, use_container_width=True)
 
-        # =========================
-        # CANDIDATES
+        with colB:
+            fig2 = px.scatter(df, x="experience", y="score", size="score",
+                              color="score", title="Experience vs Score")
+            st.plotly_chart(fig2, use_container_width=True)
+            
+
+       # =========================
+        # CANDIDATES GRID
         # =========================
         st.subheader("Ranked Candidates")
 
-        for r in results:
+        cols = st.columns(2)
 
-            st.markdown(f"""
-            <div class="card">
-                <h3>{r['name']}</h3>
-                <p>{r['decision']}</p>
-                <p>Score: {r['score']}%</p>
-                <p>Role: {r['role']}</p>
-                <p>Skills: {format_skills(r['skills'])}</p>
-                <p>Experience: {r['experience']} years</p>
-                <p>Education: {', '.join(r['education']) if r['education'] else "Not detected"}</p>
-                <p>{r['explanation']}</p>
-            </div>
-            """, unsafe_allow_html=True)
+        for i, r in enumerate(results):
+            with cols[i % 2]:
 
-            st.progress(r["score"] / 100)
+                st.markdown(f"""
+                <div class="card">
+                    <h3>{r['name']}</h3>
+                    <p>{r['decision']}</p>
+                    <p>Score: {r['score']}%</p>
+                    <p>Role: {r['role']}</p>
+                    <p>Skills: {format_skills(r['skills'])}</p>
+                    <p>Experience: {r['experience']} years</p>
+                    <p>Education: {', '.join(r['education']) if r['education'] else "Not detected"}</p>
+                    <p>{r['explanation']}</p>
+                </div>
+                """, unsafe_allow_html=True)
 
-            # Skill Gap
-            with st.expander("Skill Gap Analysis"):
-                if r["missing_skills"]:
-                    st.write(", ".join(r["missing_skills"]))
-                else:
-                    st.write("No major gaps")
+                st.progress(r["score"] / 100)
 
-            # AI Analysis
-            with st.expander("AI Analysis"):
-                st.write(r["gpt_analysis"])
+                with st.expander("🎯 Skill Gap Analysis"):
+                    if r["missing_skills"]:
+                        st.write(", ".join(r["missing_skills"]))
+                    else:
+                        st.write("No major gaps ✅")
 
-            # Resume Highlight
-            with st.expander("Resume Highlight"):
-                keywords = list(r["skills"].keys()) if isinstance(r["skills"], dict) else r["skills"]
-                highlighted = highlight_text(raw_texts[r["name"]], keywords)
-                st.markdown(highlighted, unsafe_allow_html=True)
+                with st.expander("📄 Resume Highlight"):
+                    keywords = list(r["skills"].keys()) if isinstance(r["skills"], dict) else r["skills"]
+                    highlighted = highlight_text(raw_texts[r["name"]], keywords)
+                    st.markdown(highlighted, unsafe_allow_html=True)
 
         # SUMMARY
         top = results[0]
