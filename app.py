@@ -46,12 +46,28 @@ def load_css():
         color: #00e6ff !important;
     }
 
+    /* GLASS CARD */
     .card {
-        background: rgba(0,0,0,0.6);
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 16px;
         padding: 20px;
-        border-radius: 12px;
-        margin-bottom: 15px;
+        margin: 12px;
+        border: 1px solid rgba(255,255,255,0.2);
         color: white;
+        transition: all 0.3s ease;
+    }
+
+    /* HOVER EFFECT */
+    .card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 10px 30px rgba(0,255,255,0.3);
+        border: 1px solid rgba(0,255,255,0.6);
+    }
+
+    h3 {
+        color: #00e6ff !important;
     }
     </style>
     """, unsafe_allow_html=True)
