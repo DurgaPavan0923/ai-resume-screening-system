@@ -1,27 +1,32 @@
 from openai import OpenAI
-
-client = OpenAI()
+import os
 
 def analyze_resume(resume_text, job_desc):
-    prompt = f"""
-    Analyze this resume against the job description.
+    try:
+        client = OpenAI()
 
-    Job Description:
-    {job_desc}
+        prompt = f"""
+        Analyze this resume against the job description.
 
-    Resume:
-    {resume_text}
+        Job Description:
+        {job_desc}
 
-    Provide:
-    - Match summary
-    - Strengths
-    - Weaknesses
-    - Final recommendation (Yes/No)
-    """
+        Resume:
+        {resume_text}
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}]
-    )
+        Provide:
+        - Match summary
+        - Strengths
+        - Weaknesses
+        - Final recommendation
+        """
 
-    return response.choices[0].message.content
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        return response.choices[0].message.content
+
+    except Exception:
+        return "⚠️ AI analysis unavailable (API key not configured)"
