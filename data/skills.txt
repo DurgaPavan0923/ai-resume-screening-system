@@ -1,40 +1,45 @@
-python
-java
-c++
-c
-javascript
-html
-css
-react
-angular
-nodejs
-django
-flask
-machine learning
-deep learning
-nlp
-data science
-data analysis
-pandas
-numpy
-scikit-learn
-tensorflow
-pytorch
-sql
-mysql
-mongodb
-postgresql
-git
-github
-docker
-kubernetes
-aws
-azure
-linux
-excel
-power bi
-tableau
-communication
-problem solving
-teamwork
-leadership
+python,5
+java,4
+c++,3
+c,3
+javascript,4
+html,2
+css,2
+react,4
+angular,3
+nodejs,4
+django,4
+flask,3
+
+machine learning,5
+deep learning,5
+nlp,5
+data science,5
+data analysis,4
+pandas,4
+numpy,4
+scikit-learn,4
+tensorflow,5
+pytorch,5
+
+sql,4
+mysql,3
+mongodb,3
+postgresql,3
+
+git,2
+github,2
+docker,4
+kubernetes,4
+aws,5
+azure,4
+linux,3
+
+excel,2
+power bi,3
+tableau,3
+
+communication,2
+problem solving,3
+teamwork,2
+leadership,3
