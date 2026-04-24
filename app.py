@@ -83,12 +83,18 @@ def skill_match_score(jd_skills, resume_skills, skills_db):
     return matched / total if total else 0
 
 
+
 # =========================
 # SIDEBAR
 # =========================
 with st.sidebar:
-    st.title("📊 Dashboard")
+    st.title("Dashboard")
     st.write("AI Resume Analyzer")
+
+    st.markdown("###  Tips")
+    st.write("✔ Use detailed job descriptions")
+    st.write("✔ Add skills")
+    st.write("✔ Upload multiple resumes")
 
 
 # =========================
