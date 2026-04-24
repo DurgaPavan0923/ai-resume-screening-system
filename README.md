@@ -1,4 +1,4 @@
-# 🤖 AI Resume Screening & Job Match System
+# AI Resume Screening & Job Match System
 
 ![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python)
 ![Machine Learning](https://img.shields.io/badge/Machine%20Learning-Scikit--Learn-orange?logo=scikit-learn)
@@ -10,41 +10,34 @@ An **AI-powered recruitment assistant** that analyzes resumes and ranks candidat
 
 ---
 
-# 🚀 Project Overview
+# Project Overview
 
 Recruiters receive hundreds of resumes for a single role. This system automates:
 
-- 📄 Resume parsing (PDF)
-- 🧹 Text preprocessing (NLP)
-- 🛠 Skill extraction
-- 🧠 Job role prediction
-- 📊 Resume-job similarity scoring
-- 🏆 Candidate ranking
----
-
-# 🔥 Key Features
-
-✅ Upload multiple resumes (PDF)
-
-✅ Job description input
-
-✅ Skill extraction
-
-✅ TF-IDF vectorization
-
-✅ Cosine similarity matching
-
-✅ Job role prediction
-
-✅ ATS scoring system
-
-✅ Ranking dashboard
-
-✅ Streamlit UI
+- Resume parsing (PDF)
+- Text preprocessing (NLP)
+- Skill extraction
+- Job role prediction
+- Resume-job similarity scoring
+- Candidate ranking
 
 ---
 
-# 🧠 How It Works
+#  Key Features
+
+- Upload multiple resumes (PDF)  
+- Job description input  
+- Skill extraction  
+- TF-IDF vectorization  
+- Cosine similarity matching  
+- Job role prediction  
+- ATS scoring system  
+- Ranking dashboard  
+- Streamlit UI  
+
+---
+
+#  How It Works
 
 1. Enter job description  
 2. Upload resumes  
@@ -53,11 +46,11 @@ Recruiters receive hundreds of resumes for a single role. This system automates:
 5. Converts text → TF-IDF vectors  
 6. Computes similarity  
 7. Predicts job role  
-8. Ranks candidates
+8. Ranks candidates  
 
 ---
 
-# 🏗️ System Architecture
+#  System Architecture
 
 ```
 Job Description
@@ -81,6 +74,8 @@ Ranking Output
 
 ---
 
+# Tech Stack
+
 | Layer                | Technology              |
 | -------------------- | ----------------------- |
 | Programming Language | Python                  |
@@ -94,70 +89,86 @@ Ranking Output
 | Data Processing      | Pandas                  |
 | Model Persistence    | Pickle                  |
 | UI Styling           | Custom CSS              |
+
 ---
 
-# 📂 Project Structure
+#  Project Structure
 
 ```
-AI-Resume-Job-Match-System
+AI-Resume-Job-Match-System/
 │
-├── app.py
-├── config.py
-├── requirements.txt
+├── app.py 
+├── config.py 
+├── requirements.txt 
+├── README.md 
+├── LICENSE 
+├── .gitignore 
 │
-├── models/
-│ ├── model.pkl
-│ └── vectorizer.pkl
-│ 
-├── src/
-│ ├── preprocess.py
+├── api/ 
+│ └── main.py
+│
+├── src/ 
+│ ├── init.py
+│ ├── preprocess.py 
 │ ├── pdf_parser.py
-│ ├── skill_extractor.py
-│ ├── job_predictor.py
+│ ├── skill_extractor.py 
 │ ├── similarity.py
+│ ├── job_predictor.py
+│ ├── experience_extractor.py
+│ ├── education_parser.py
+│ ├── explainer.py
+│ ├── explainer_llm.py
+│ ├── gpt_analyzer.py
+│ ├── highlighter.py
+│ ├── pipeline.py
 │ └── train.py
+│
+├── data/
+│ ├── skills.txt
+│ └── job_roles.csv
 │
 ├── utils/
 │ └── helpers.py
 │
-├── data
-│   ├── skills.txt
-│   └── job_roles.csv
+├── assets/
+│ ├── styles.css
+│ └── screenshots/
+│ ├── home.png
+│ ├── upload.png
+│ └── result.png
 │
-├── assets
-│   ├── styles.css
-│   └── screenshots
-│       ├── home_v2.png
-│       ├── upload_v2.png
-│       └── results_v2.png
 ├── notebooks/
-│   └──exploration.ipynb
-└── README.md
+│ └── exploration.ipynb
+│
+├── .devcontainer/
+│ └── devcontainer.json
+│
+└── App.js
 ```
 
 ---
 
-# 📸 Application Preview
+#  Application Preview
 
-### 🖥️ Home Screen
+###  Home Screen
 
 ![Home Screen](assets/screenshots/home.png)
 
 ---
 
-### 📂 Resume Upload & Skill Detection
+###  Resume Upload & Skill Detection
 
 ![Upload Screen](assets/screenshots/upload.png)
 
 ---
 
-### 🏆 Resume Ranking & Job Role Prediction
+###  Resume Ranking & Job Role Prediction
 
 ![Results Screen](assets/screenshots/result.png)
 
 ---
 
-# ▶️ How to Run
+#  How to Run
 
 ### 1. Clone Repository
 
@@ -201,42 +212,28 @@ http://localhost:8501
 # Applications
 
 This project can be used in:
-
-🏢 HR Resume Screening Systems
-🎓 University Placement Cells
-🚀 Hiring Platforms
-🤖 AI-powered Applicant Tracking Systems (ATS)
-📊 Recruitment Automation Tools
-
----
-
-# 🔮 Future Enhancements
-
-* 📄 Advanced **PDF Resume Parsing**
-* 🧠 **BERT-based Resume Matching**
-* 🧾 **Named Entity Recognition (NER) Skill Extraction**
-* 📊 Advanced **ATS Score Calculation**
-* 👩‍💼 Recruiter **Analytics Dashboard**
-* 🗄️ **Database Integration**
-* ☁️ Cloud Deployment (Streamlit Cloud / Render)
-* 🔐 **Authentication System**
-* 📈 Resume **Skill Gap Analysis**
+- HR Resume Screening Systems
+- University Placement Cells
+- Hiring Platforms
+- AI-powered Applicant Tracking Systems (ATS)
+- Recruitment Automation Tools
 
 ---
 
-# 👨‍💻 Author
+#  Future Enhancements
 
-**Rajana Durga Pavan Kumar**
-
-B.Tech – Computer Science & Engineering (AI & ML)
-Institute of Technical Education and Research (ITER)
-SOA University
-
-GitHub
-https://github.com/DurgaPavan0923
+*  Advanced **PDF Resume Parsing**
+*  **BERT-based Resume Matching**
+*  **Named Entity Recognition (NER) Skill Extraction**
+*  Advanced **ATS Score Calculation**
+*  Recruiter **Analytics Dashboard**
+*  **Database Integration**
+*  Cloud Deployment (Streamlit Cloud / Render)
+*  **Authentication System**
+*  Resume **Skill Gap Analysis**
 
 ---
 
-# 📜 License
+#  License
 
 This project is licensed under the **MIT License**.
