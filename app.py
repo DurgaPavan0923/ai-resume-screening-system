@@ -260,14 +260,20 @@ if st.button("Analyze Candidates"):
                 """, unsafe_allow_html=True)
 
                 st.progress(r["score"] / 100)
-
-                with st.expander("🎯 Skill Gap Analysis"):
+                
+                # Skill Gap
+                with st.expander("Skill Gap Analysis"):
                     if r["missing_skills"]:
                         st.write(", ".join(r["missing_skills"]))
                     else:
-                        st.write("No major gaps ✅")
+                        st.write("No major gaps")
+                
+                # AI Analysis
+                with st.expander("AI Analysis"):
+                st.write(r["gpt_analysis"])
 
-                with st.expander("📄 Resume Highlight"):
+                # Resume Highlight
+                with st.expander("Resume Highlight"):
                     keywords = list(r["skills"].keys()) if isinstance(r["skills"], dict) else r["skills"]
                     highlighted = highlight_text(raw_texts[r["name"]], keywords)
                     st.markdown(highlighted, unsafe_allow_html=True)
