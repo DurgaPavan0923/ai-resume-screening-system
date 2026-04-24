@@ -46,32 +46,52 @@ def load_css():
         color: #00e6ff !important;
     }
 
-    /* GLASS CARD */
+    /* ===== THEME VARIABLES ===== */
+    :root {
+        --text-color: #111;
+        --card-bg: rgba(255,255,255,0.6);
+        --border-color: rgba(0,0,0,0.1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --text-color: #fff;
+            --card-bg: rgba(255,255,255,0.08);
+            --border-color: rgba(255,255,255,0.2);
+        }
+    }
+
+    /* ===== GLASS CARD ===== */
     .card {
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--card-bg);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         border-radius: 16px;
         padding: 20px;
         margin: 12px;
-        border: 1px solid rgba(255,255,255,0.2);
-        color: white;
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
         transition: all 0.3s ease;
     }
 
-    /* HOVER EFFECT */
+    /* ===== HOVER ===== */
     .card:hover {
-        transform: translateY(-8px) scale(1.02);
-        box-shadow: 0 10px 30px rgba(0,255,255,0.3);
-        border: 1px solid rgba(0,255,255,0.6);
+        transform: translateY(-6px) scale(1.01);
+        box-shadow: 0 8px 25px rgba(0,255,255,0.25);
     }
 
+    /* ===== HEADINGS ===== */
     h3 {
-        color: #00e6ff !important;
+        color: #00c6ff !important;
     }
+
+    /* ===== FIX EXPANDER TEXT ===== */
+    .st-expander {
+        color: var(--text-color) !important;
+    }
+
     </style>
     """, unsafe_allow_html=True)
-
 
 # =========================
 # CONFIG
