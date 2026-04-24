@@ -18,41 +18,42 @@ from config import SKILLS_PATH
 
 
 # =========================
-# 🎨 CSS
+# 🎨 PREMIUM CSS (GLASS + HOVER)
 # =========================
 def load_css():
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&display=swap');
 
-    /* ===== TITLE ===== */
-    .main-title {
-        font-family: 'Orbitron', sans-serif;
-        font-size: 50px;
-        color: #00e6ff !important;
-        text-shadow: 0px 0px 20px rgba(0,255,255,0.8);
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
-    /* ===== SUBTITLE ===== */
-    .subtitle {
+    html, body, [class*="css"] {
         font-family: 'Poppins', sans-serif;
-        font-size: 18px;
-        color: #010c0d !important;
     }
 
-    /* ===== HEADINGS ===== */
-    h2, h3 {
-        font-family: 'Poppins', sans-serif;
-        color: #00e6ff !important;
-    }
-
+    /* GLASS CARD */
     .card {
-        background: rgba(0,0,0,0.6);
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 16px;
         padding: 20px;
-        border-radius: 12px;
-        margin-bottom: 15px;
+        margin: 12px;
+        border: 1px solid rgba(255,255,255,0.2);
         color: white;
+        transition: all 0.3s ease;
     }
+
+    /* HOVER EFFECT */
+    .card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 10px 30px rgba(0,255,255,0.3);
+        border: 1px solid rgba(0,255,255,0.6);
+    }
+
+    h3 {
+        color: #00e6ff !important;
+    }
+
     </style>
     """, unsafe_allow_html=True)
 
@@ -99,24 +100,11 @@ def skill_gap(jd_skills, resume_skills):
 
 
 # =========================
-# SIDEBAR
+# UI HEADER
 # =========================
-with st.sidebar:
-    st.title("Dashboard")
-    st.write("AI Resume Analyzer")
-
-    st.markdown("### Tips")
-    st.write("✔ Use detailed job descriptions")
-    st.write("✔ Add skills")
-    st.write("✔ Upload multiple resumes")
-
-
-# =========================
-# HEADER
-# =========================
-st.markdown('<div class="main-title">AI Resume Screening Dashboard</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Smart hiring powered by AI</div>', unsafe_allow_html=True)
-st.markdown("<hr>", unsafe_allow_html=True)
+st.title("🤖 AI Resume Screening Dashboard")
+st.markdown("### Smart hiring powered by AI")
+st.markdown("---")
 
 
 # =========================
@@ -125,16 +113,16 @@ st.markdown("<hr>", unsafe_allow_html=True)
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    job_desc = st.text_area("Job Description", height=200)
+    job_desc = st.text_area("📄 Job Description", height=200)
 
 with col2:
-    files = st.file_uploader("Upload Resumes", type=["pdf"], accept_multiple_files=True)
+    files = st.file_uploader("📂 Upload Resumes", type=["pdf"], accept_multiple_files=True)
 
 
 # =========================
 # ANALYZE
 # =========================
-if st.button("Analyze Candidates"):
+if st.button("🚀 Analyze Candidates"):
 
     valid, msg = validate_input(job_desc, files)
     if not valid:
@@ -147,99 +135,92 @@ if st.button("Analyze Candidates"):
     results = []
     raw_texts = {}
 
-    for file in files:
-        try:
-            text = parse_pdf(file)
+    with st.spinner("🔍 Analyzing resumes..."):
 
-            if not text.strip():
-                continue
-
-            raw_texts[file.name] = text
-            clean = clean_text(text)
-
-            similarity_score = compute_similarity(job_clean, clean, vectorizer)
-
-            skills = extract_skills(clean, skills_db) or {}
-            jd_skills = extract_skills(job_clean, skills_db) or {}
-
-            skill_score = skill_match_score(jd_skills, skills, skills_db)
-
-            experience = extract_experience(clean)
-            education = extract_education(clean)
-
-            role = predict_role(clean, model, vectorizer)
-
-            # GPT SAFE FALLBACK
+        for file in files:
             try:
-                from src.gpt_analyzer import analyze_resume
-                gpt_analysis = analyze_resume(text, job_desc)
-            except:
-                gpt_analysis = "AI analysis not available"
+                text = parse_pdf(file)
 
-            final_score = (
-                0.5 * similarity_score +
-                0.3 * skill_score +
-                0.2 * min(experience / 10, 1)
-            )
+                if not text.strip():
+                    continue
 
-            final_score = max(0, min(final_score, 1))
-            final_score_percent = round(final_score * 100, 2)
+                raw_texts[file.name] = text
+                clean = clean_text(text)
 
-            decision = get_decision(final_score_percent)
-            missing_skills = skill_gap(jd_skills, skills)
+                similarity_score = compute_similarity(job_clean, clean, vectorizer)
 
-            explanation = generate_explanation(skills, experience, role)
+                skills = extract_skills(clean, skills_db) or {}
+                jd_skills = extract_skills(job_clean, skills_db) or {}
 
-            results.append({
-                "name": file.name,
-                "score": final_score_percent,
-                "skills": skills,
-                "role": role,
-                "match_percent": round(skill_score * 100, 2),
-                "experience": experience,
-                "education": education,
-                "explanation": explanation,
-                "gpt_analysis": gpt_analysis,
-                "decision": decision,
-                "missing_skills": missing_skills
-            })
+                skill_score = skill_match_score(jd_skills, skills, skills_db)
 
-        except Exception as e:
-            st.error(f"{file.name}: {e}")
+                experience = extract_experience(clean)
+                education = extract_education(clean)
+
+                role = predict_role(clean, model, vectorizer)
+
+                final_score = (
+                    0.5 * similarity_score +
+                    0.3 * skill_score +
+                    0.2 * min(experience / 10, 1)
+                )
+
+                final_score = max(0, min(final_score, 1))
+                final_score_percent = round(final_score * 100, 2)
+
+                decision = get_decision(final_score_percent)
+                missing_skills = skill_gap(jd_skills, skills)
+
+                explanation = generate_explanation(skills, experience, role)
+
+                results.append({
+                    "name": file.name,
+                    "score": final_score_percent,
+                    "skills": skills,
+                    "role": role,
+                    "experience": experience,
+                    "education": education,
+                    "explanation": explanation,
+                    "decision": decision,
+                    "missing_skills": missing_skills
+                })
+
+            except Exception as e:
+                st.error(f"{file.name}: {e}")
 
     # =========================
     # RESULTS
     # =========================
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
-
         df = pd.DataFrame(results)
 
-        # DASHBOARD
-        st.subheader("Recruiter Dashboard")
+        # 📊 DASHBOARD
+        st.subheader("📊 Recruiter Dashboard")
 
         col1, col2, col3 = st.columns(3)
         col1.metric("Avg Score", round(df["score"].mean(), 2))
         col2.metric("Avg Experience", round(df["experience"].mean(), 1))
         col3.metric("Candidates", len(df))
 
-        # Plotly Charts
+        # 📊 ANIMATED CHARTS
         colA, colB = st.columns(2)
 
         with colA:
-            fig = px.bar(df, x="name", y="score", color="score", title="Candidate Scores")
+            fig = px.bar(df, x="name", y="score", color="score", text="score")
+            fig.update_layout(transition_duration=800)
             st.plotly_chart(fig, use_container_width=True)
 
         with colB:
             fig2 = px.scatter(df, x="experience", y="score", size="score",
-                              color="score", title="Experience vs Score")
+                              color="score", hover_name="name")
+            fig2.update_layout(transition_duration=800)
             st.plotly_chart(fig2, use_container_width=True)
-            
 
-       # =========================
+        # =========================
         # CANDIDATES GRID
         # =========================
-        st.subheader("Ranked Candidates")
+        st.subheader("🏆 Ranked Candidates")
 
         cols = st.columns(2)
 
@@ -250,30 +231,24 @@ if st.button("Analyze Candidates"):
                 <div class="card">
                     <h3>{r['name']}</h3>
                     <p>{r['decision']}</p>
-                    <p>Score: {r['score']}%</p>
-                    <p>Role: {r['role']}</p>
-                    <p>Skills: {format_skills(r['skills'])}</p>
-                    <p>Experience: {r['experience']} years</p>
-                    <p>Education: {', '.join(r['education']) if r['education'] else "Not detected"}</p>
-                    <p>{r['explanation']}</p>
+                    <p>🎯 Score: {r['score']}%</p>
+                    <p>💼 Role: {r['role']}</p>
+                    <p>🛠 Skills: {format_skills(r['skills'])}</p>
+                    <p>📅 Experience: {r['experience']} years</p>
+                    <p>🎓 Education: {', '.join(r['education']) if r['education'] else "Not detected"}</p>
+                    <p>🧠 {r['explanation']}</p>
                 </div>
                 """, unsafe_allow_html=True)
 
                 st.progress(r["score"] / 100)
-                
-                # Skill Gap
-                with st.expander("Skill Gap Analysis"):
+
+                with st.expander("🎯 Skill Gap Analysis"):
                     if r["missing_skills"]:
                         st.write(", ".join(r["missing_skills"]))
                     else:
-                        st.write("No major gaps")
-                
-                # AI Analysis
-                with st.expander("AI Analysis"):
-                    st.write(r["gpt_analysis"])
+                        st.write("No major gaps ✅")
 
-                # Resume Highlight
-                with st.expander("Resume Highlight"):
+                with st.expander("📄 Resume Highlight"):
                     keywords = list(r["skills"].keys()) if isinstance(r["skills"], dict) else r["skills"]
                     highlighted = highlight_text(raw_texts[r["name"]], keywords)
                     st.markdown(highlighted, unsafe_allow_html=True)
@@ -281,7 +256,7 @@ if st.button("Analyze Candidates"):
         # SUMMARY
         top = results[0]
 
-        st.subheader("Summary")
+        st.subheader("📈 Summary")
         c1, c2, c3 = st.columns(3)
 
         c1.metric("Top Candidate", top["name"])
@@ -296,4 +271,4 @@ if st.button("Analyze Candidates"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("Advanced AI Resume Screening System")
+st.markdown("✨ Advanced AI Resume Screening System")
