@@ -1,19 +1,20 @@
-def load_skills(path="data/skills.txt"):
+def load_skills(path):
+    skills = {}
 
-    with open(path, "r") as f:
-        skills = [line.strip().lower() for line in f.readlines()]
+    with open(path) as f:
+        for line in f:
+            name, weight = line.strip().split(",")
+            skills[name.lower()] = int(weight)
 
     return skills
 
 
 def extract_skills(text, skills_db):
-
-    found = []
-
+    found = {}
     text = text.lower()
 
-    for skill in skills_db:
+    for skill, weight in skills_db.items():
         if skill in text:
-            found.append(skill)
+            found[skill] = weight
 
     return found
