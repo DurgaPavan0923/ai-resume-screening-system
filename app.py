@@ -22,10 +22,9 @@ from config import SKILLS_PATH
 def load_css():
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&display=swap');
 
-/* ===== ANIMATED BACKGROUND ===== */
-    body {
+    /* ===== FORCE BACKGROUND (IMPORTANT FIX) ===== */
+    .stApp {
         background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #00c6ff);
         background-size: 400% 400%;
         animation: gradientBG 15s ease infinite;
@@ -37,47 +36,51 @@ def load_css():
         100% { background-position: 0% 50%; }
     }
 
+    /* ===== MAIN TITLE ===== */
     .main-title {
         font-family: 'Orbitron', sans-serif;
         font-size: 50px;
         color: #00e6ff !important;
-        text-shadow: 0px 0px 20px rgba(0,255,255,0.8);
+        text-shadow: 0px 0px 25px rgba(0,255,255,0.9);
     }
 
+    /* ===== SUBTITLE ===== */
     .subtitle {
         font-family: 'Poppins', sans-serif;
         font-size: 18px;
-        color: #010c0d !important;
+        color: #ffffffcc !important;
     }
 
-    h2, h3 {
-        font-family: 'Poppins', sans-serif;
-        color: #00e6ff !important;
-    }
-
-    :root {
-        --text-color: #111;
-        --card-bg: rgba(255,255,255,0.6);
-        --border-color: rgba(0,0,0,0.1);
-    }
-
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --text-color: #fff;
-            --card-bg: rgba(255,255,255,0.08);
-            --border-color: rgba(255,255,255,0.2);
-        }
-    }
-
+    /* ===== GLASS CARD ===== */
     .card {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
-        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-radius: 18px;
         padding: 20px;
         margin: 12px;
-        border: 1px solid var(--border-color);
-        color: var(--text-color);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+        transition: 0.3s ease;
     }
+
+    /* ===== HOVER EFFECT ===== */
+    .card:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 10px 30px rgba(0,255,255,0.4);
+    }
+
+    /* ===== TEXT FIX ===== */
+    h1, h2, h3, p, label, span {
+        color: white !important;
+    }
+
+    /* ===== SIDEBAR ===== */
+    section[data-testid="stSidebar"] {
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(10px);
+    }
+
     </style>
     """, unsafe_allow_html=True)
 
