@@ -201,7 +201,7 @@ if st.button("Analyze Candidates"):
                     gpt_analysis = ""
 
             if not gpt_analysis:
-                gpt_analysis = "⚠️ AI analysis unavailable (API key not configured)"
+                gpt_analysis = "AI analysis unavailable (API key not configured)"
 
             final_score = (
                 0.5 * similarity_score +
@@ -287,15 +287,15 @@ if st.button("Analyze Candidates"):
                 with st.expander("Skill Gap"):
                     if r["missing_skills"]:
                         for skill in r["missing_skills"]:
-                            st.write(f"❌ {skill}")
+                            st.write(f" {skill}")
                     else:
-                        st.success("No major skill gaps 🎯")
+                        st.success("No major skill gaps")
 
-                with st.expander("🧠 AI Analysis"):
+                with st.expander(" AI Analysis"):
                     if r["gpt_analysis"]:
                         st.write(r["gpt_analysis"])
                     else:
-                        st.warning("⚠️ AI analysis unavailable")
+                        st.warning("AI analysis unavailable")
 
                 with st.expander("Resume Highlight"):
                     highlighted = highlight_text(raw_texts[r["name"]], list(r["skills"].keys()))
