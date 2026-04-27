@@ -270,7 +270,7 @@ if st.button("Analyze Candidates"):
                     else:
                         st.success("No major skill gaps 🎯")
 
-                with st.expander("🧠 AI Analysis"):
+                with st.expander(" AI Analysis"):
                     st.write(r["gpt_analysis"])
 
                 with st.expander("Resume Highlight"):
