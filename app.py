@@ -179,12 +179,13 @@ if st.button("Analyze Candidates"):
             experience = extract_experience(clean)
             education = extract_education(clean)
 
-            # ✅ UPDATED ROLE LOGIC
+            # UPDATED ROLE LOGIC
             roles, ml_roles = predict_roles(clean, skills, model, vectorizer)
 
             role_display = ", ".join(roles)   # multiple roles
 
-            # =========================
+            
+# =========================
 # AI ANALYSIS (ROBUST)
 # =========================
 try:
@@ -224,8 +225,8 @@ if not gpt_analysis:
                 "name": file.name,
                 "score": final_score_percent,
                 "skills": skills,
-                "role": role_display,   # ✅ UPDATED
-                "ml_roles": ml_roles,   # ✅ NEW
+                "role": role_display,   # UPDATED
+                "ml_roles": ml_roles,   # NEW
                 "experience": experience,
                 "education": education,
                 "explanation": explanation,
@@ -285,7 +286,7 @@ if not gpt_analysis:
 
                 st.progress(r["score"] / 100)
 
-                # ✅ NEW → ML ROLE CONFIDENCE
+                # NEW → ML ROLE CONFIDENCE
                 with st.expander("Role Confidence"):
                     for role_name, score in r["ml_roles"]:
                         st.write(f"{role_name}: {score}%")
