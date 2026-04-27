@@ -7,7 +7,7 @@ from src.preprocess import clean_text
 from src.skill_extractor import load_skills, extract_skills
 from src.similarity import compute_similarity
 from src.train import train_model
-from src.job_predictor import predict_roles   # ✅ UPDATED
+from src.job_predictor import predict_roles   # UPDATED
 from src.experience_extractor import extract_experience
 from src.education_parser import extract_education
 from src.explainer import generate_explanation
