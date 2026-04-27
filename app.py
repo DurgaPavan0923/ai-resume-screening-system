@@ -203,7 +203,7 @@ if st.button("Analyze Candidates"):
             experience = extract_experience(clean)
             education = extract_education(clean)
 
-            role = predict_role(clean, model, vectorizer)
+            role, confidence = predict_role(clean, skills, model, vectorizer)
 
             # GPT SAFE FALLBACK
             try:
