@@ -2,85 +2,70 @@ import numpy as np
 
 
 # =========================
-# 🧠 RULE-BASED FALLBACK
+# 🧠 RULE-BASED MULTI ROLE
 # =========================
-def rule_based_role(skills):
+def rule_based_roles(skills):
     skills = set(skills)
+    roles = []
 
-    if {"html", "css", "javascript", "react", "angular"} & skills:
-        return "Frontend Developer"
-
-    if {"nodejs", "express", "django", "flask", "spring", "api"} & skills:
-        return "Backend Developer"
-
+    # 🎯 AI / Data (highest priority)
     if {"machine learning", "deep learning", "nlp", "data science"} & skills:
-        return "Data Scientist"
+        roles.append("Data Scientist")
 
     if {"tensorflow", "pytorch", "neural networks"} & skills:
-        return "AI Engineer"
+        roles.append("AI Engineer")
 
-    if {"sql", "excel", "power bi", "tableau"} & skills:
-        return "Data Analyst"
+    # 📊 Data roles
+    if {"sql", "mysql", "excel", "power bi", "tableau"} & skills:
+        roles.append("Data Analyst")
 
-    if {"aws", "docker", "kubernetes", "devops"} & skills:
-        return "DevOps Engineer"
+    # 💻 Backend
+    if {"nodejs", "django", "flask", "spring", "api"} & skills:
+        roles.append("Backend Developer")
 
-    if {"android", "kotlin", "mobile"} & skills:
-        return "Mobile Developer"
+    # 🎨 Frontend
+    if {"html", "css", "javascript", "react"} & skills:
+        roles.append("Frontend Developer")
 
-    if {"cybersecurity", "security", "ethical hacking"} & skills:
-        return "Security Engineer"
+    # ☁️ DevOps
+    if {"aws", "docker", "kubernetes"} & skills:
+        roles.append("DevOps Engineer")
 
-    return None
+    # 📱 Mobile
+    if {"android", "kotlin"} & skills:
+        roles.append("Mobile Developer")
+
+    return roles
 
 
 # =========================
-# 🔮 PREDICT ROLE (HYBRID)
+# 🔮 HYBRID MULTI-ROLE PREDICTION
 # =========================
-def predict_role(text, skills, model, vectorizer):
+def predict_roles(text, skills, model, vectorizer):
     """
-    Hybrid prediction:
-    1. Rule-based (priority)
-    2. ML model
-    3. Confidence threshold
+    Returns:
+    - combined_roles → final roles (rule + ML)
+    - ml_roles → ML confidence scores
     """
 
-    # ✅ Step 1: Rule-based override
-    rule_role = rule_based_role(skills)
-    if rule_role:
-        return rule_role, 100  # High confidence for rule-based
+    # ✅ Rule-based roles
+    rule_roles = rule_based_roles(skills)
 
-    # ✅ Step 2: ML prediction
+    # ✅ ML prediction
     vec = vectorizer.transform([text])
     probs = model.predict_proba(vec)[0]
     classes = model.classes_
 
-    max_index = np.argmax(probs)
-    predicted_role = classes[max_index]
-    confidence = probs[max_index]
+    # Top 3 ML roles
+    top_indices = np.argsort(probs)[-3:][::-1]
+    ml_roles = [(classes[i], round(probs[i] * 100, 2)) for i in top_indices]
 
-    # ✅ Step 3: Confidence threshold (lowered)
-    if confidence < 0.20:
-        return "General / Other Role", round(confidence * 100, 2)
+    ml_role_names = [role for role, _ in ml_roles]
 
-    return predicted_role, round(confidence * 100, 2)
+    # ✅ Combine (remove duplicates)
+    combined_roles = list(dict.fromkeys(rule_roles + ml_role_names))
 
+    # Limit roles
+    combined_roles = combined_roles[:4]
 
-# =========================
-# 🔄 LOAD MODEL (OPTIONAL)
-# =========================
-def load_model():
-    import pickle
-
-    try:
-        with open("models/model.pkl", "rb") as f:
-            model = pickle.load(f)
-
-        with open("models/vectorizer.pkl", "rb") as f:
-            vectorizer = pickle.load(f)
-
-        return model, vectorizer
-
-    except Exception as e:
-        print("⚠️ Model loading failed:", e)
-        return None, None
+    return combined_roles, ml_roles
