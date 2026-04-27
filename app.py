@@ -10,7 +10,6 @@ from src.train import train_model
 from src.job_predictor import predict_roles
 from src.experience_extractor import extract_experience
 from src.education_parser import extract_education
-from src.explainer import generate_explanation
 from src.highlighter import highlight_text
 
 from utils.helpers import validate_input, format_skills
@@ -184,24 +183,14 @@ if st.button("Analyze Candidates"):
             roles, ml_roles = predict_roles(clean, skills, model, vectorizer)
             role_display = ", ".join(roles)
 
-            # =========================
-            # AI ANALYSIS (FIXED)
-            # =========================
+            # AI Analysis (unchanged)
             try:
                 from src.gpt_analyzer import analyze_resume
                 gpt_analysis = analyze_resume(text, job_desc)
-
                 if not gpt_analysis or len(gpt_analysis.strip()) == 0:
                     raise Exception("Empty GPT response")
-
             except:
-                try:
-                    gpt_analysis = generate_explanation(skills, experience, role_display)
-                except:
-                    gpt_analysis = ""
-
-            if not gpt_analysis:
-                gpt_analysis = "AI analysis unavailable (API key not configured)"
+                gpt_analysis = "⚠️ AI analysis unavailable (API key not configured)"
 
             final_score = (
                 0.5 * similarity_score +
@@ -215,8 +204,6 @@ if st.button("Analyze Candidates"):
             decision = get_decision(final_score_percent)
             missing_skills = skill_gap(jd_skills, skills)
 
-            explanation = generate_explanation(skills, experience, role_display)
-
             results.append({
                 "name": file.name,
                 "score": final_score_percent,
@@ -225,7 +212,6 @@ if st.button("Analyze Candidates"):
                 "ml_roles": ml_roles,
                 "experience": experience,
                 "education": education,
-                "explanation": explanation,
                 "gpt_analysis": gpt_analysis,
                 "decision": decision,
                 "missing_skills": missing_skills
@@ -234,9 +220,6 @@ if st.button("Analyze Candidates"):
         except Exception as e:
             st.error(f"{file.name}: {e}")
 
-    # =========================
-    # RESULTS
-    # =========================
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
         df = pd.DataFrame(results)
@@ -256,9 +239,6 @@ if st.button("Analyze Candidates"):
         with colB:
             st.plotly_chart(px.scatter(df, x="experience", y="score"), use_container_width=True)
 
-        # =========================
-        # CARDS
-        # =========================
         st.subheader("Ranked Candidates")
 
         cols = st.columns(2)
@@ -274,7 +254,6 @@ if st.button("Analyze Candidates"):
                     <p><b>Roles:</b> {r['role']}</p>
                     <p>Skills: {format_skills(r['skills'])}</p>
                     <p>Experience: {r['experience']} years</p>
-                    <p>{r['explanation']}</p>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -287,15 +266,12 @@ if st.button("Analyze Candidates"):
                 with st.expander("Skill Gap"):
                     if r["missing_skills"]:
                         for skill in r["missing_skills"]:
-                            st.write(f" {skill}")
+                            st.write(f"❌ {skill}")
                     else:
-                        st.success("No major skill gaps")
+                        st.success("No major skill gaps 🎯")
 
-                with st.expander(" AI Analysis"):
-                    if r["gpt_analysis"]:
-                        st.write(r["gpt_analysis"])
-                    else:
-                        st.warning("AI analysis unavailable")
+                with st.expander("🧠 AI Analysis"):
+                    st.write(r["gpt_analysis"])
 
                 with st.expander("Resume Highlight"):
                     highlighted = highlight_text(raw_texts[r["name"]], list(r["skills"].keys()))
