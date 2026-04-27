@@ -7,7 +7,7 @@ from src.preprocess import clean_text
 from src.skill_extractor import load_skills, extract_skills
 from src.similarity import compute_similarity
 from src.train import train_model
-from src.job_predictor import predict_roles   # UPDATED
+from src.job_predictor import predict_roles
 from src.experience_extractor import extract_experience
 from src.education_parser import extract_education
 from src.explainer import generate_explanation
@@ -108,7 +108,9 @@ def get_decision(score):
 
 
 def skill_gap(jd_skills, resume_skills):
-    return [s for s in jd_skills if s not in resume_skills]
+    jd_set = set(jd_skills.keys() if isinstance(jd_skills, dict) else jd_skills)
+    resume_set = set(resume_skills.keys() if isinstance(resume_skills, dict) else resume_skills)
+    return list(jd_set - resume_set)
 
 
 # =========================
@@ -179,33 +181,27 @@ if st.button("Analyze Candidates"):
             experience = extract_experience(clean)
             education = extract_education(clean)
 
-            # UPDATED ROLE LOGIC
             roles, ml_roles = predict_roles(clean, skills, model, vectorizer)
+            role_display = ", ".join(roles)
 
-            role_display = ", ".join(roles)   # multiple roles
+            # =========================
+            # AI ANALYSIS (FIXED)
+            # =========================
+            try:
+                from src.gpt_analyzer import analyze_resume
+                gpt_analysis = analyze_resume(text, job_desc)
 
-            
-# =========================
-# AI ANALYSIS (ROBUST)
-# =========================
-try:
-    from src.gpt_analyzer import analyze_resume
-    gpt_analysis = analyze_resume(text, job_desc)
+                if not gpt_analysis or len(gpt_analysis.strip()) == 0:
+                    raise Exception("Empty GPT response")
 
-    # If API returns empty
-    if not gpt_analysis or len(gpt_analysis.strip()) == 0:
-        raise Exception("Empty GPT response")
+            except:
+                try:
+                    gpt_analysis = generate_explanation(skills, experience, role_display)
+                except:
+                    gpt_analysis = ""
 
-except:
-    # Fallback 1: Rule-based explanation
-    try:
-        gpt_analysis = generate_explanation(skills, experience, role_display)
-    except:
-        gpt_analysis = ""
-
-# Final fallback (always visible)
-if not gpt_analysis:
-    gpt_analysis = "AI analysis unavailable (API key not configured)"
+            if not gpt_analysis:
+                gpt_analysis = "⚠️ AI analysis unavailable (API key not configured)"
 
             final_score = (
                 0.5 * similarity_score +
@@ -225,8 +221,8 @@ if not gpt_analysis:
                 "name": file.name,
                 "score": final_score_percent,
                 "skills": skills,
-                "role": role_display,   # UPDATED
-                "ml_roles": ml_roles,   # NEW
+                "role": role_display,
+                "ml_roles": ml_roles,
                 "experience": experience,
                 "education": education,
                 "explanation": explanation,
@@ -243,7 +239,6 @@ if not gpt_analysis:
     # =========================
     if results:
         results = sorted(results, key=lambda x: x["score"], reverse=True)
-
         df = pd.DataFrame(results)
 
         st.subheader("Recruiter Dashboard")
@@ -253,7 +248,6 @@ if not gpt_analysis:
         col2.metric("Avg Experience", round(df["experience"].mean(), 1))
         col3.metric("Candidates", len(df))
 
-        # Charts
         colA, colB = st.columns(2)
 
         with colA:
@@ -286,13 +280,22 @@ if not gpt_analysis:
 
                 st.progress(r["score"] / 100)
 
-                # NEW → ML ROLE CONFIDENCE
                 with st.expander("Role Confidence"):
                     for role_name, score in r["ml_roles"]:
                         st.write(f"{role_name}: {score}%")
 
                 with st.expander("Skill Gap"):
-                    st.write(", ".join(r["missing_skills"]) if r["missing_skills"] else "No gaps")
+                    if r["missing_skills"]:
+                        for skill in r["missing_skills"]:
+                            st.write(f"❌ {skill}")
+                    else:
+                        st.success("No major skill gaps 🎯")
+
+                with st.expander("🧠 AI Analysis"):
+                    if r["gpt_analysis"]:
+                        st.write(r["gpt_analysis"])
+                    else:
+                        st.warning("⚠️ AI analysis unavailable")
 
                 with st.expander("Resume Highlight"):
                     highlighted = highlight_text(raw_texts[r["name"]], list(r["skills"].keys()))
