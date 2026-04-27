@@ -2,44 +2,74 @@ import numpy as np
 
 
 # =========================
-# 🔮 PREDICT ROLE (IMPROVED)
+# 🧠 RULE-BASED FALLBACK
 # =========================
-def predict_role(text, model, vectorizer):
+def rule_based_role(skills):
+    skills = set(skills)
+
+    if {"html", "css", "javascript", "react", "angular"} & skills:
+        return "Frontend Developer"
+
+    if {"nodejs", "express", "django", "flask", "spring", "api"} & skills:
+        return "Backend Developer"
+
+    if {"machine learning", "deep learning", "nlp", "data science"} & skills:
+        return "Data Scientist"
+
+    if {"tensorflow", "pytorch", "neural networks"} & skills:
+        return "AI Engineer"
+
+    if {"sql", "excel", "power bi", "tableau"} & skills:
+        return "Data Analyst"
+
+    if {"aws", "docker", "kubernetes", "devops"} & skills:
+        return "DevOps Engineer"
+
+    if {"android", "kotlin", "mobile"} & skills:
+        return "Mobile Developer"
+
+    if {"cybersecurity", "security", "ethical hacking"} & skills:
+        return "Security Engineer"
+
+    return None
+
+
+# =========================
+# 🔮 PREDICT ROLE (HYBRID)
+# =========================
+def predict_role(text, skills, model, vectorizer):
     """
-    Predict job role using trained ML model
-    + confidence threshold
-    + fallback handling
+    Hybrid prediction:
+    1. Rule-based (priority)
+    2. ML model
+    3. Confidence threshold
     """
 
-    # Transform input
+    # ✅ Step 1: Rule-based override
+    rule_role = rule_based_role(skills)
+    if rule_role:
+        return rule_role, 100  # High confidence for rule-based
+
+    # ✅ Step 2: ML prediction
     vec = vectorizer.transform([text])
-
-    # Get probabilities
     probs = model.predict_proba(vec)[0]
     classes = model.classes_
 
-    # Get best prediction
     max_index = np.argmax(probs)
     predicted_role = classes[max_index]
     confidence = probs[max_index]
 
-    # =========================
-    # 🧠 CONFIDENCE LOGIC
-    # =========================
-    if confidence < 0.40:
-        return "General / Other Role"
+    # ✅ Step 3: Confidence threshold (lowered)
+    if confidence < 0.20:
+        return "General / Other Role", round(confidence * 100, 2)
 
-    return predicted_role
+    return predicted_role, round(confidence * 100, 2)
 
 
 # =========================
-# 🔄 LOAD MODEL (SAFE)
+# 🔄 LOAD MODEL (OPTIONAL)
 # =========================
 def load_model():
-    """
-    Optional: Only use if you're loading from .pkl
-    (not needed if using train_model())
-    """
     import pickle
 
     try:
