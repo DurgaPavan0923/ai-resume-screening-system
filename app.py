@@ -184,12 +184,27 @@ if st.button("Analyze Candidates"):
 
             role_display = ", ".join(roles)   # multiple roles
 
-            # GPT fallback
-            try:
-                from src.gpt_analyzer import analyze_resume
-                gpt_analysis = analyze_resume(text, job_desc)
-            except:
-                gpt_analysis = "AI analysis not available"
+            # =========================
+# AI ANALYSIS (ROBUST)
+# =========================
+try:
+    from src.gpt_analyzer import analyze_resume
+    gpt_analysis = analyze_resume(text, job_desc)
+
+    # If API returns empty
+    if not gpt_analysis or len(gpt_analysis.strip()) == 0:
+        raise Exception("Empty GPT response")
+
+except:
+    # Fallback 1: Rule-based explanation
+    try:
+        gpt_analysis = generate_explanation(skills, experience, role_display)
+    except:
+        gpt_analysis = ""
+
+# Final fallback (always visible)
+if not gpt_analysis:
+    gpt_analysis = "AI analysis unavailable (API key not configured)"
 
             final_score = (
                 0.5 * similarity_score +
