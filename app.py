@@ -24,6 +24,19 @@ def load_css():
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&display=swap');
 
+/* ===== ANIMATED BACKGROUND ===== */
+    body {
+        background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #00c6ff);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
     .main-title {
         font-family: 'Orbitron', sans-serif;
         font-size: 50px;
