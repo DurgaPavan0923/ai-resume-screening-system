@@ -246,16 +246,16 @@ if st.button("Analyze Candidates"):
     with st.spinner("🔍 Analyzing resumes... Please wait"):
         # ⬇️ KEEP ALL YOUR EXISTING CODE HERE (no changes)
 
-    valid, msg = validate_input(job_desc, files)
-    if not valid:
-        st.warning(msg)
-        st.stop()
-
-    skills_db = load_skills(SKILLS_PATH)
-    job_clean = clean_text(job_desc)
-
-    results = []
-    raw_texts = {}
+        valid, msg = validate_input(job_desc, files)
+        if not valid:
+            st.warning(msg)
+            st.stop()
+    
+        skills_db = load_skills(SKILLS_PATH)
+        job_clean = clean_text(job_desc)
+    
+        results = []
+        raw_texts = {}
 
     for file in files:
         try:
