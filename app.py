@@ -266,7 +266,7 @@ if st.button("Analyze Candidates"):
             # COLUMN 2 → RESUME PREVIEW
             # =========================
             with col2:
-                st.markdown("### 📄 Resume Preview")
+                st.markdown("###Resume Preview")
         
                 file_obj = raw_texts.get(r["name"] + "_file")
         
@@ -290,13 +290,13 @@ if st.button("Analyze Candidates"):
             # =========================
             with col3:
         
-                st.markdown("### 🎯 Role Confidence")
+                st.markdown("### Role Confidence")
                 for role_name, score in r["ml_roles"]:
                     st.write(f"{role_name}: {score}%")
         
                 st.markdown("---")
         
-                st.markdown("### ⚠️ Skill Gap")
+                st.markdown("### Skill Gap")
                 if r["missing_skills"]:
                     for skill in r["missing_skills"]:
                         st.write(f"❌ {skill}")
@@ -305,7 +305,7 @@ if st.button("Analyze Candidates"):
         
                 st.markdown("---")
         
-                st.markdown("### 🧠 AI Analysis")
+                st.markdown("### AI Analysis")
                 st.write(r["gpt_analysis"])
 
 # =========================
