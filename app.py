@@ -169,6 +169,8 @@ if st.button("Analyze Candidates"):
 
             raw_texts[file.name] = text
             clean = clean_text(text)
+            file.seek(0)   # reset pointer
+            raw_texts[file.name + "_file"] = file
 
             similarity_score = compute_similarity(job_clean, clean, vectorizer)
 
@@ -283,9 +285,23 @@ for i, r in enumerate(results):
             if file_obj:
                 file_obj.seek(0)
                 import base64
-                base64_pdf = base64.b64encode(file_obj.read()).decode('utf-8')
-                pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="500px"></iframe>'
-                st.markdown(pdf_display, unsafe_allow_html=True)
+
+                file_obj = raw_texts.get(r["name"] + "_file")
+
+                if file_obj:
+                    file_obj.seek(0)   # VERY IMPORTANT
+
+                    base64_pdf = base64.b64encode(file_obj.read()).decode('utf-8')
+
+                    pdf_display = f"""
+                    <iframe src="data:application/pdf;base64,{base64_pdf}" 
+                     width="100%" height="500px"></iframe>
+                    """
+
+                    st.markdown(pdf_display, unsafe_allow_html=True)
+
+                else:
+                    st.warning("Preview not available")
             else:
                 st.warning("Preview not available")
 
