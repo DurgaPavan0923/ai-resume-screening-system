@@ -431,12 +431,12 @@ if st.button("Analyze Candidates"):
                 st.markdown("### AI Analysis")
                 st.write(r["gpt_analysis"])
                 
-                st.markdown("---")
+        st.markdown("---")
 
-                st.markdown("### 🎤 Interview Questions")
-                questions = generate_role_based_questions(r["role"], r["skills"])
-                for q in questions:
-                    st.write("👉 " + q)
+        st.markdown("### 🎤 Interview Questions")
+        questions = generate_role_based_questions(r["role"], r["skills"])
+        for q in questions:
+            st.write("👉 " + q)
                     
 
 # =========================
