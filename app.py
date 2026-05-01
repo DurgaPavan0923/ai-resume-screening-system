@@ -266,7 +266,7 @@ if st.button("Analyze Candidates"):
             # COLUMN 2 → RESUME PREVIEW
             # =========================
             with col2:
-                st.markdown("###Resume Preview")
+                st.markdown("### Resume Preview")
         
                 file_obj = raw_texts.get(r["name"] + "_file")
         
