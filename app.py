@@ -3,6 +3,20 @@ import pandas as pd
 import plotly.express as px
 import base64
 
+def generate_questions(skills, role):
+    skill_list = list(skills.keys()) if isinstance(skills, dict) else skills
+
+    questions = []
+
+    for skill in skill_list[:5]:
+        questions.append(f"What is your experience with {skill}?")
+
+    questions.append(f"Explain a real project you did as a {role}.")
+    questions.append("What challenges did you face and how did you solve them?")
+    questions.append("How do you optimize performance in your projects?")
+
+    return questions
+
 from src.pdf_parser import parse_pdf
 from src.preprocess import clean_text
 from src.skill_extractor import load_skills, extract_skills
@@ -229,6 +243,8 @@ with col2:
 # ANALYZE
 # =========================
 if st.button("Analyze Candidates"):
+    with st.spinner("🔍 Analyzing resumes... Please wait"):
+        # ⬇️ KEEP ALL YOUR EXISTING CODE HERE (no changes)
 
     valid, msg = validate_input(job_desc, files)
     if not valid:
@@ -388,6 +404,27 @@ if st.button("Analyze Candidates"):
         
                 st.markdown("### AI Analysis")
                 st.write(r["gpt_analysis"])
+                
+                st.markdown("---")
+
+                st.markdown("### 🎤 Interview Questions")
+                questions = generate_questions(r["skills"], r["role"])
+                for q in questions:
+                    st.write("👉 " + q)
+
+# =========================
+# DOWNLOAD SHORTLIST
+# =========================
+st.markdown("### 📥 Export Candidates")
+
+csv_data = df.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+    label="📊 Download Shortlist (CSV)",
+    data=csv_data,
+    file_name="shortlisted_candidates.csv",
+    mime="text/csv"
+)
 
 # =========================
 # FOOTER
