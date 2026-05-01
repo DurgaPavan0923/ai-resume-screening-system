@@ -398,6 +398,7 @@ if st.button("Analyze Candidates"):
                 for q in questions:
                     st.write("👉 " + q)
 
+from config import SKILLS_PATH
 # =========================
 # 🎤 INTERVIEW QUESTIONS FUNCTION
 # =========================
