@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import base64
 
 from src.pdf_parser import parse_pdf
 from src.preprocess import clean_text
@@ -168,9 +169,10 @@ if st.button("Analyze Candidates"):
                 continue
 
             raw_texts[file.name] = text
-            clean = clean_text(text)
-            file.seek(0)   # reset pointer
+            file.seek(0)
             raw_texts[file.name + "_file"] = file
+
+            clean = clean_text(text)
 
             similarity_score = compute_similarity(job_clean, clean, vectorizer)
 
@@ -185,14 +187,13 @@ if st.button("Analyze Candidates"):
             roles, ml_roles = predict_roles(clean, skills, model, vectorizer)
             role_display = ", ".join(roles)
 
-            # AI Analysis (unchanged)
             try:
                 from src.gpt_analyzer import analyze_resume
                 gpt_analysis = analyze_resume(text, job_desc)
-                if not gpt_analysis or len(gpt_analysis.strip()) == 0:
-                    raise Exception("Empty GPT response")
+                if not gpt_analysis.strip():
+                    raise Exception()
             except:
-                gpt_analysis = "⚠️ AI analysis unavailable (API key not configured)"
+                gpt_analysis = "⚠️ AI analysis unavailable"
 
             final_score = (
                 0.5 * similarity_score +
@@ -200,11 +201,7 @@ if st.button("Analyze Candidates"):
                 0.2 * min(experience / 10, 1)
             )
 
-            final_score = max(0, min(final_score, 1))
             final_score_percent = round(final_score * 100, 2)
-
-            decision = get_decision(final_score_percent)
-            missing_skills = skill_gap(jd_skills, skills)
 
             results.append({
                 "name": file.name,
@@ -215,8 +212,8 @@ if st.button("Analyze Candidates"):
                 "experience": experience,
                 "education": education,
                 "gpt_analysis": gpt_analysis,
-                "decision": decision,
-                "missing_skills": missing_skills
+                "decision": get_decision(final_score_percent),
+                "missing_skills": skill_gap(jd_skills, skills)
             })
 
         except Exception as e:
@@ -228,129 +225,78 @@ if st.button("Analyze Candidates"):
 
         st.subheader("Recruiter Dashboard")
 
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Avg Score", round(df["score"].mean(), 2))
-        col2.metric("Avg Experience", round(df["experience"].mean(), 1))
-        col3.metric("Candidates", len(df))
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Avg Score", round(df["score"].mean(), 2))
+        c2.metric("Avg Experience", round(df["experience"].mean(), 1))
+        c3.metric("Candidates", len(df))
 
         colA, colB = st.columns(2)
-
         with colA:
             st.plotly_chart(px.bar(df, x="name", y="score"), use_container_width=True)
-
         with colB:
             st.plotly_chart(px.scatter(df, x="experience", y="score"), use_container_width=True)
 
         st.subheader("Ranked Candidates")
 
-cols = st.columns(2)
+        cols = st.columns(2)
 
-for i, r in enumerate(results):
-    with cols[i % 2]:
+        for i, r in enumerate(results):
+            with cols[i % 2]:
 
-        # ===== ORIGINAL CARD (UNCHANGED) =====
-        st.markdown(f"""
-        <div class="card">
-            <h3>{r['name']}</h3>
-            <p>{r['decision']}</p>
-            <p>Score: {r['score']}%</p>
-            <p><b>Roles:</b> {r['role']}</p>
-            <p>Skills: {format_skills(r['skills'])}</p>
-            <p>Experience: {r['experience']} years</p>
-        </div>
-        """, unsafe_allow_html=True)
+                st.markdown(f"""
+                <div class="card">
+                    <h3>{r['name']}</h3>
+                    <p>{r['decision']}</p>
+                    <p>Score: {r['score']}%</p>
+                    <p><b>Roles:</b> {r['role']}</p>
+                    <p>Skills: {format_skills(r['skills'])}</p>
+                    <p>Experience: {r['experience']} years</p>
+                </div>
+                """, unsafe_allow_html=True)
 
-        st.progress(r["score"] / 100)
+                st.progress(r["score"] / 100)
+                st.markdown("<br>", unsafe_allow_html=True)
 
-        # =========================
-        # 🧠 3-COLUMN LAYOUT (NEW)
-        # =========================
-        colA, colB, colC = st.columns([1.1, 1.6, 1.3])
+                colA, colB, colC = st.columns([1, 2, 1.3])
 
-        # =========================
-        # COLUMN 1 → ANALYSIS
-        # =========================
-        with colA:
-            st.markdown("### 📊 Analysis")
-            st.write(f"**Education:** {', '.join(r['education']) if r['education'] else 'Not detected'}")
+                with colA:
+                    st.markdown("### 📊 Analysis")
+                    st.write(f"Education: {', '.join(r['education']) if r['education'] else 'Not detected'}")
 
-        # =========================
-        # COLUMN 2 → PDF PREVIEW
-        # =========================
-        with colB:
-            st.markdown("### 📄 Resume Preview")
+                with colB:
+                    st.markdown("### 📄 Resume Preview")
+                    file_obj = raw_texts.get(r["name"] + "_file")
+                    if file_obj:
+                        file_obj.seek(0)
+                        base64_pdf = base64.b64encode(file_obj.read()).decode('utf-8')
+                        st.markdown(f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="500px"></iframe>', unsafe_allow_html=True)
+                    else:
+                        st.warning("Preview not available")
 
-            file_obj = raw_texts.get(r["name"] + "_file")
+                with colC:
+                    with st.expander("Role Confidence"):
+                        for role_name, score in r["ml_roles"]:
+                            st.write(f"{role_name}: {score}%")
 
-            if file_obj:
-                file_obj.seek(0)
-                import base64
+                    with st.expander("Skill Gap"):
+                        if r["missing_skills"]:
+                            for s in r["missing_skills"]:
+                                st.write(f"❌ {s}")
+                        else:
+                            st.success("No major gaps")
 
-                file_obj = raw_texts.get(r["name"] + "_file")
+                    with st.expander("AI Analysis"):
+                        st.write(r["gpt_analysis"])
 
-                if file_obj:
-                    file_obj.seek(0)   # VERY IMPORTANT
+                    with st.expander("Resume Highlight"):
+                        highlighted = highlight_text(raw_texts[r["name"]], list(r["skills"].keys()))
+                        st.markdown(highlighted, unsafe_allow_html=True)
 
-                    base64_pdf = base64.b64encode(file_obj.read()).decode('utf-8')
-
-                    pdf_display = f"""
-                    <iframe src="data:application/pdf;base64,{base64_pdf}" 
-                     width="100%" height="500px"></iframe>
-                    """
-
-                    st.markdown(pdf_display, unsafe_allow_html=True)
-
-                else:
-                    st.warning("Preview not available")
-            else:
-                st.warning("Preview not available")
-
-        # =========================
-        # COLUMN 3 → INSIGHTS
-        # =========================
-        with colC:
-
-            # Role Confidence
-            with st.expander("Role Confidence"):
-                for role_name, score in r["ml_roles"]:
-                    st.write(f"{role_name}: {score}%")
-
-            # Skill Gap
-            with st.expander("Skill Gap"):
-                if r["missing_skills"]:
-                    for skill in r["missing_skills"]:
-                        st.write(f"❌ {skill}")
-                else:
-                    st.success("No major skill gaps 🎯")
-
-            # AI Analysis
-            with st.expander("AI Analysis"):
-                st.write(r["gpt_analysis"])
-
-            # Resume Highlight
-            with st.expander("Resume Highlight"):
-                keywords = list(r["skills"].keys())
-                highlighted = highlight_text(raw_texts[r["name"]], keywords)
-                st.markdown(highlighted, unsafe_allow_html=True)
-
-            # =========================
-            # 🧠 MATCHED SECTIONS (NEW)
-            # =========================
-            with st.expander("Matched Sections"):
-                text_lines = raw_texts[r["name"]].split("\n")
-                keywords = list(r["skills"].keys())
-
-                matched_lines = [
-                    line for line in text_lines
-                    if any(k.lower() in line.lower() for k in keywords)
-                ]
-
-                if matched_lines:
-                    for line in matched_lines[:10]:
-                        st.write("👉 " + line)
-                else:
-                    st.write("No strong matches found")
-
+                    with st.expander("Matched Sections"):
+                        lines = raw_texts[r["name"]].split("\n")
+                        matches = [l for l in lines if any(k in l.lower() for k in r["skills"].keys())]
+                        for m in matches[:10]:
+                            st.write("👉 " + m)
 
 # =========================
 # FOOTER
