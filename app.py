@@ -145,149 +145,101 @@ with col2:
 
 
 # =========================
-# ANALYZE
+# RANKED CANDIDATES (UPDATED)
 # =========================
-if st.button("Analyze Candidates"):
+st.subheader("Ranked Candidates")
 
-    valid, msg = validate_input(job_desc, files)
-    if not valid:
-        st.warning(msg)
-        st.stop()
+cols = st.columns(2)
 
-    skills_db = load_skills(SKILLS_PATH)
-    job_clean = clean_text(job_desc)
+for i, r in enumerate(results):
+    with cols[i % 2]:
 
-    results = []
-    raw_texts = {}
+        # ===== ORIGINAL CARD (UNCHANGED) =====
+        st.markdown(f"""
+        <div class="card">
+            <h3>{r['name']}</h3>
+            <p>{r['decision']}</p>
+            <p>Score: {r['score']}%</p>
+            <p><b>Roles:</b> {r['role']}</p>
+            <p>Skills: {format_skills(r['skills'])}</p>
+            <p>Experience: {r['experience']} years</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    for file in files:
-        try:
-            text = parse_pdf(file)
+        st.progress(r["score"] / 100)
 
-            if not text.strip():
-                continue
+        # =========================
+        # 🔥 NEW 3-COLUMN SECTION
+        # =========================
+        c1, c2, c3 = st.columns([1.1, 1.5, 1.2])
 
-            raw_texts[file.name] = text
-            clean = clean_text(text)
+        # =========================
+        # COLUMN 1 → ANALYSIS DETAILS
+        # =========================
+        with c1:
+            st.markdown("### 📊 Analysis")
+            st.write(f"**Education:** {', '.join(r['education']) if r['education'] else 'Not detected'}")
 
-            similarity_score = compute_similarity(job_clean, clean, vectorizer)
+        # =========================
+        # COLUMN 2 → PDF PREVIEW
+        # =========================
+        with c2:
+            st.markdown("### 📄 Resume Preview")
 
-            skills = extract_skills(clean, skills_db) or {}
-            jd_skills = extract_skills(job_clean, skills_db) or {}
+            file_obj = raw_texts.get(r["name"] + "_file")
+            if file_obj:
+                file_obj.seek(0)
+                base64_pdf = base64.b64encode(file_obj.read()).decode('utf-8')
+                pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="500px"></iframe>'
+                st.markdown(pdf_display, unsafe_allow_html=True)
+            else:
+                st.warning("Preview not available")
 
-            skill_score = skill_match_score(jd_skills, skills, skills_db)
+        # =========================
+        # COLUMN 3 → INSIGHTS PANEL
+        # =========================
+        with c3:
 
-            experience = extract_experience(clean)
-            education = extract_education(clean)
+            # Role Confidence
+            with st.expander("Role Confidence"):
+                for role_name, score in r["ml_roles"]:
+                    st.write(f"{role_name}: {score}%")
 
-            roles, ml_roles = predict_roles(clean, skills, model, vectorizer)
-            role_display = ", ".join(roles)
+            # Skill Gap
+            with st.expander("Skill Gap"):
+                if r["missing_skills"]:
+                    for skill in r["missing_skills"]:
+                        st.write(f"❌ {skill}")
+                else:
+                    st.success("No major gaps")
 
-            # AI Analysis (unchanged)
-            try:
-                from src.gpt_analyzer import analyze_resume
-                gpt_analysis = analyze_resume(text, job_desc)
-                if not gpt_analysis or len(gpt_analysis.strip()) == 0:
-                    raise Exception("Empty GPT response")
-            except:
-                gpt_analysis = "⚠️ AI analysis unavailable (API key not configured)"
+            # AI Analysis
+            with st.expander("AI Analysis"):
+                st.write(r["gpt_analysis"])
 
-            final_score = (
-                0.5 * similarity_score +
-                0.3 * skill_score +
-                0.2 * min(experience / 10, 1)
-            )
+            # Resume Highlight
+            with st.expander("Resume Highlight"):
+                keywords = list(r["skills"].keys())
+                highlighted = highlight_text(raw_texts[r["name"]], keywords)
+                st.markdown(highlighted, unsafe_allow_html=True)
 
-            final_score = max(0, min(final_score, 1))
-            final_score_percent = round(final_score * 100, 2)
+            # =========================
+            # 🧠 MATCHED SECTIONS (NEW)
+            # =========================
+            with st.expander("Matched Sections"):
+                text_lines = raw_texts[r["name"]].split("\n")
+                keywords = list(r["skills"].keys())
 
-            decision = get_decision(final_score_percent)
-            missing_skills = skill_gap(jd_skills, skills)
+                matched = [
+                    line for line in text_lines
+                    if any(k.lower() in line.lower() for k in keywords)
+                ]
 
-            results.append({
-                "name": file.name,
-                "score": final_score_percent,
-                "skills": skills,
-                "role": role_display,
-                "ml_roles": ml_roles,
-                "experience": experience,
-                "education": education,
-                "gpt_analysis": gpt_analysis,
-                "decision": decision,
-                "missing_skills": missing_skills
-            })
-
-        except Exception as e:
-            st.error(f"{file.name}: {e}")
-
-    if results:
-        results = sorted(results, key=lambda x: x["score"], reverse=True)
-        df = pd.DataFrame(results)
-
-        st.subheader("Recruiter Dashboard")
-
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Avg Score", round(df["score"].mean(), 2))
-        col2.metric("Avg Experience", round(df["experience"].mean(), 1))
-        col3.metric("Candidates", len(df))
-
-        colA, colB = st.columns(2)
-
-        with colA:
-            st.plotly_chart(px.bar(df, x="name", y="score"), use_container_width=True)
-
-        with colB:
-            st.plotly_chart(px.scatter(df, x="experience", y="score"), use_container_width=True)
-
-        st.subheader("Ranked Candidates")
-
-        cols = st.columns(2)
-
-        for i, r in enumerate(results):
-            with cols[i % 2]:
-
-                st.markdown(f"""
-                <div class="card">
-                    <h3>{r['name']}</h3>
-                    <p>{r['decision']}</p>
-                    <p>Score: {r['score']}%</p>
-                    <p><b>Roles:</b> {r['role']}</p>
-                    <p>Skills: {format_skills(r['skills'])}</p>
-                    <p>Experience: {r['experience']} years</p>
-                </div>
-                """, unsafe_allow_html=True)
-
-                st.progress(r["score"] / 100)
-
-                with st.expander("Role Confidence"):
-                    for role_name, score in r["ml_roles"]:
-                        st.write(f"{role_name}: {score}%")
-
-                with st.expander("Skill Gap"):
-                    if r["missing_skills"]:
-                        for skill in r["missing_skills"]:
-                            st.write(f"❌ {skill}")
-                    else:
-                        st.success("No major skill gaps 🎯")
-
-                with st.expander(" AI Analysis"):
-                    st.write(r["gpt_analysis"])
-
-                with st.expander("Resume Highlight"):
-                    highlighted = highlight_text(raw_texts[r["name"]], list(r["skills"].keys()))
-                    st.markdown(highlighted, unsafe_allow_html=True)
-
-        top = results[0]
-
-        st.subheader("Summary")
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Top Candidate", top["name"])
-        c2.metric("Score", f"{top['score']}%")
-        c3.metric("Roles", top["role"])
-
-    else:
-        st.error("No valid resumes found")
-
+                if matched:
+                    for line in matched[:10]:
+                        st.write("👉 " + line)
+                else:
+                    st.write("No strong matches found")
 
 # =========================
 # FOOTER
