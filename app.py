@@ -241,52 +241,99 @@ if st.button("Analyze Candidates"):
 
         st.subheader("Ranked Candidates")
 
-        cols = st.columns(2)
+cols = st.columns(2)
 
-        for i, r in enumerate(results):
-            with cols[i % 2]:
+for i, r in enumerate(results):
+    with cols[i % 2]:
 
-                st.markdown(f"""
-                <div class="card">
-                    <h3>{r['name']}</h3>
-                    <p>{r['decision']}</p>
-                    <p>Score: {r['score']}%</p>
-                    <p><b>Roles:</b> {r['role']}</p>
-                    <p>Skills: {format_skills(r['skills'])}</p>
-                    <p>Experience: {r['experience']} years</p>
-                </div>
-                """, unsafe_allow_html=True)
+        # ===== ORIGINAL CARD (UNCHANGED) =====
+        st.markdown(f"""
+        <div class="card">
+            <h3>{r['name']}</h3>
+            <p>{r['decision']}</p>
+            <p>Score: {r['score']}%</p>
+            <p><b>Roles:</b> {r['role']}</p>
+            <p>Skills: {format_skills(r['skills'])}</p>
+            <p>Experience: {r['experience']} years</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-                st.progress(r["score"] / 100)
+        st.progress(r["score"] / 100)
 
-                with st.expander("Role Confidence"):
-                    for role_name, score in r["ml_roles"]:
-                        st.write(f"{role_name}: {score}%")
+        # =========================
+        # 🧠 3-COLUMN LAYOUT (NEW)
+        # =========================
+        colA, colB, colC = st.columns([1.1, 1.6, 1.3])
 
-                with st.expander("Skill Gap"):
-                    if r["missing_skills"]:
-                        for skill in r["missing_skills"]:
-                            st.write(f"❌ {skill}")
-                    else:
-                        st.success("No major skill gaps 🎯")
+        # =========================
+        # COLUMN 1 → ANALYSIS
+        # =========================
+        with colA:
+            st.markdown("### 📊 Analysis")
+            st.write(f"**Education:** {', '.join(r['education']) if r['education'] else 'Not detected'}")
 
-                with st.expander(" AI Analysis"):
-                    st.write(r["gpt_analysis"])
+        # =========================
+        # COLUMN 2 → PDF PREVIEW
+        # =========================
+        with colB:
+            st.markdown("### 📄 Resume Preview")
 
-                with st.expander("Resume Highlight"):
-                    highlighted = highlight_text(raw_texts[r["name"]], list(r["skills"].keys()))
-                    st.markdown(highlighted, unsafe_allow_html=True)
+            file_obj = raw_texts.get(r["name"] + "_file")
 
-        top = results[0]
+            if file_obj:
+                file_obj.seek(0)
+                import base64
+                base64_pdf = base64.b64encode(file_obj.read()).decode('utf-8')
+                pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="500px"></iframe>'
+                st.markdown(pdf_display, unsafe_allow_html=True)
+            else:
+                st.warning("Preview not available")
 
-        st.subheader("Summary")
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Top Candidate", top["name"])
-        c2.metric("Score", f"{top['score']}%")
-        c3.metric("Roles", top["role"])
+        # =========================
+        # COLUMN 3 → INSIGHTS
+        # =========================
+        with colC:
 
-    else:
-        st.error("No valid resumes found")
+            # Role Confidence
+            with st.expander("Role Confidence"):
+                for role_name, score in r["ml_roles"]:
+                    st.write(f"{role_name}: {score}%")
+
+            # Skill Gap
+            with st.expander("Skill Gap"):
+                if r["missing_skills"]:
+                    for skill in r["missing_skills"]:
+                        st.write(f"❌ {skill}")
+                else:
+                    st.success("No major skill gaps 🎯")
+
+            # AI Analysis
+            with st.expander("AI Analysis"):
+                st.write(r["gpt_analysis"])
+
+            # Resume Highlight
+            with st.expander("Resume Highlight"):
+                keywords = list(r["skills"].keys())
+                highlighted = highlight_text(raw_texts[r["name"]], keywords)
+                st.markdown(highlighted, unsafe_allow_html=True)
+
+            # =========================
+            # 🧠 MATCHED SECTIONS (NEW)
+            # =========================
+            with st.expander("Matched Sections"):
+                text_lines = raw_texts[r["name"]].split("\n")
+                keywords = list(r["skills"].keys())
+
+                matched_lines = [
+                    line for line in text_lines
+                    if any(k.lower() in line.lower() for k in keywords)
+                ]
+
+                if matched_lines:
+                    for line in matched_lines[:10]:
+                        st.write("👉 " + line)
+                else:
+                    st.write("No strong matches found")
 
 
 # =========================
