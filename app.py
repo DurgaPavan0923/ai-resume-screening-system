@@ -238,65 +238,75 @@ if st.button("Analyze Candidates"):
 
         st.subheader("Ranked Candidates")
 
-        cols = st.columns(2)
-
-        for i, r in enumerate(results):
-            with cols[i % 2]:
-
+        for r in results:
+        
+            st.markdown("---")
+        
+            col1, col2, col3 = st.columns([1.2, 1.8, 1.2])
+        
+            # =========================
+            # COLUMN 1 → FULL ANALYSIS
+            # =========================
+            with col1:
                 st.markdown(f"""
                 <div class="card">
                     <h3>{r['name']}</h3>
                     <p>{r['decision']}</p>
-                    <p>Score: {r['score']}%</p>
+                    <p><b>Score:</b> {r['score']}%</p>
+                    <p><b>Education:</b> {', '.join(r['education']) if r['education'] else 'Not detected'}</p>
                     <p><b>Roles:</b> {r['role']}</p>
-                    <p>Skills: {format_skills(r['skills'])}</p>
-                    <p>Experience: {r['experience']} years</p>
+                    <p><b>Skills:</b> {format_skills(r['skills'])}</p>
+                    <p><b>Experience:</b> {r['experience']} years</p>
                 </div>
                 """, unsafe_allow_html=True)
-
+        
                 st.progress(r["score"] / 100)
-                st.markdown("<br>", unsafe_allow_html=True)
-
-                colA, colB, colC = st.columns([1, 2, 1.3])
-
-                with colA:
-                    st.markdown("### 📊 Analysis")
-                    st.write(f"Education: {', '.join(r['education']) if r['education'] else 'Not detected'}")
-
-                with colB:
-                    st.markdown("### 📄 Resume Preview")
-                    file_obj = raw_texts.get(r["name"] + "_file")
-                    if file_obj:
-                        file_obj.seek(0)
-                        base64_pdf = base64.b64encode(file_obj.read()).decode('utf-8')
-                        st.markdown(f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="500px"></iframe>', unsafe_allow_html=True)
-                    else:
-                        st.warning("Preview not available")
-
-                with colC:
-                    with st.expander("Role Confidence"):
-                        for role_name, score in r["ml_roles"]:
-                            st.write(f"{role_name}: {score}%")
-
-                    with st.expander("Skill Gap"):
-                        if r["missing_skills"]:
-                            for s in r["missing_skills"]:
-                                st.write(f"❌ {s}")
-                        else:
-                            st.success("No major gaps")
-
-                    with st.expander("AI Analysis"):
-                        st.write(r["gpt_analysis"])
-
-                    with st.expander("Resume Highlight"):
-                        highlighted = highlight_text(raw_texts[r["name"]], list(r["skills"].keys()))
-                        st.markdown(highlighted, unsafe_allow_html=True)
-
-                    with st.expander("Matched Sections"):
-                        lines = raw_texts[r["name"]].split("\n")
-                        matches = [l for l in lines if any(k in l.lower() for k in r["skills"].keys())]
-                        for m in matches[:10]:
-                            st.write("👉 " + m)
+        
+            # =========================
+            # COLUMN 2 → RESUME PREVIEW
+            # =========================
+            with col2:
+                st.markdown("### 📄 Resume Preview")
+        
+                file_obj = raw_texts.get(r["name"] + "_file")
+        
+                if file_obj:
+                    file_obj.seek(0)
+                    import base64
+                    base64_pdf = base64.b64encode(file_obj.read()).decode('utf-8')
+        
+                    pdf_display = f"""
+                    <iframe src="data:application/pdf;base64,{base64_pdf}" 
+                    width="100%" height="500px"></iframe>
+                    """
+        
+                    st.markdown(pdf_display, unsafe_allow_html=True)
+        
+                else:
+                    st.warning("Preview not available")
+        
+            # =========================
+            # COLUMN 3 → INSIGHTS
+            # =========================
+            with col3:
+        
+                st.markdown("### 🎯 Role Confidence")
+                for role_name, score in r["ml_roles"]:
+                    st.write(f"{role_name}: {score}%")
+        
+                st.markdown("---")
+        
+                st.markdown("### ⚠️ Skill Gap")
+                if r["missing_skills"]:
+                    for skill in r["missing_skills"]:
+                        st.write(f"❌ {skill}")
+                else:
+                    st.success("No major gaps")
+        
+                st.markdown("---")
+        
+                st.markdown("### 🧠 AI Analysis")
+                st.write(r["gpt_analysis"])
 
 # =========================
 # FOOTER
