@@ -268,20 +268,23 @@ if st.button("Analyze Candidates"):
             with col2:
                 st.markdown("### Resume Preview")
         
-               file_obj = raw_texts.get(r["name"] + "_file")
-
+                file_obj = raw_texts.get(r["name"] + "_file")   # ✅ MUST BE INSIDE
+        
                 if file_obj:
                     file_obj.seek(0)
-                    pdf_bytes = file_obj.read()
-                
-                    st.download_button(
-                        label="📥 Open Resume",
-                        data=pdf_bytes,
-                        file_name=r["name"],
-                        mime="application/pdf"
-                    )
+                    import base64
+                    base64_pdf = base64.b64encode(file_obj.read()).decode('utf-8')
+        
+                    pdf_display = f"""
+                    <iframe src="data:application/pdf;base64,{base64_pdf}" 
+                    width="100%" height="500px"></iframe>
+                    """
+        
+                    st.markdown(pdf_display, unsafe_allow_html=True)
+        
                 else:
                     st.warning("Preview not available")
+
         
             # =========================
             # COLUMN 3 → INSIGHTS
