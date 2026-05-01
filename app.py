@@ -442,16 +442,18 @@ if st.button("Analyze Candidates"):
 # =========================
 # DOWNLOAD SHORTLIST
 # =========================
-st.markdown("### 📥 Export Candidates")
+if 'df' in locals():
 
-csv_data = df.to_csv(index=False).encode("utf-8")
+    st.markdown("### 📥 Export Candidates")
 
-st.download_button(
-    label="📊 Download Shortlist (CSV)",
-    data=csv_data,
-    file_name="shortlisted_candidates.csv",
-    mime="text/csv"
-)
+    csv_data = df.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        label="📊 Download Shortlist (CSV)",
+        data=csv_data,
+        file_name="shortlisted_candidates.csv",
+        mime="text/csv"
+    )
 
 # =========================
 # FOOTER
