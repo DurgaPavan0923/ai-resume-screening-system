@@ -3,20 +3,6 @@ import pandas as pd
 import plotly.express as px
 import base64
 
-def generate_questions(skills, role):
-    skill_list = list(skills.keys()) if isinstance(skills, dict) else skills
-
-    questions = []
-
-    for skill in skill_list[:5]:
-        questions.append(f"What is your experience with {skill}?")
-
-    questions.append(f"Explain a real project you did as a {role}.")
-    questions.append("What challenges did you face and how did you solve them?")
-    questions.append("How do you optimize performance in your projects?")
-
-    return questions
-
 from src.pdf_parser import parse_pdf
 from src.preprocess import clean_text
 from src.skill_extractor import load_skills, extract_skills
@@ -411,6 +397,67 @@ if st.button("Analyze Candidates"):
                 questions = generate_questions(r["skills"], r["role"])
                 for q in questions:
                     st.write("👉 " + q)
+
+# =========================
+# 🎤 INTERVIEW QUESTIONS FUNCTION
+# =========================
+def generate_role_based_questions(role, skills):
+    role = role.lower()
+    skill_list = list(skills.keys()) if isinstance(skills, dict) else skills
+
+    questions = []
+
+    if "data scientist" in role:
+        questions += [
+            "Explain supervised vs unsupervised learning.",
+            "How do you handle missing data?",
+            "What evaluation metrics do you use?",
+            "Explain bias-variance tradeoff."
+        ]
+
+    elif "ai engineer" in role:
+        questions += [
+            "Explain neural networks.",
+            "What is backpropagation?",
+            "How do you optimize deep learning models?",
+            "What frameworks have you used?"
+        ]
+
+    elif "backend" in role:
+        questions += [
+            "Explain REST API design.",
+            "How do you handle authentication?",
+            "What is database normalization?",
+            "How do you scale backend systems?"
+        ]
+
+    elif "frontend" in role:
+        questions += [
+            "Explain React lifecycle.",
+            "State vs props?",
+            "How do you optimize UI performance?",
+            "Explain responsive design."
+        ]
+
+    elif "data analyst" in role:
+        questions += [
+            "Explain SQL joins.",
+            "How do you clean data?",
+            "What tools do you use?",
+            "How do you derive insights?"
+        ]
+
+    for skill in skill_list[:5]:
+        questions.append(f"What is your experience with {skill}?")
+
+    questions += [
+        "Describe a challenging project.",
+        "How do you solve problems?",
+        "Tell me about a failure.",
+        "Why should we hire you?"
+    ]
+
+    return questions
 
 # =========================
 # DOWNLOAD SHORTLIST
