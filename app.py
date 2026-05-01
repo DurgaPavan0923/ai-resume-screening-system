@@ -14,8 +14,48 @@ from src.education_parser import extract_education
 from src.highlighter import highlight_text
 
 from utils.helpers import validate_input, format_skills
-from config import SKILLS_PATH
 
+from config import SKILLS_PATH
+# =========================
+# 🎤 INTERVIEW QUESTIONS FUNCTION
+# =========================
+def generate_role_based_questions(role, skills):
+    role = str(role).lower()
+    skill_list = list(skills.keys()) if isinstance(skills, dict) else skills
+
+    questions = []
+
+    if "data scientist" in role:
+        questions += [
+            "Explain supervised vs unsupervised learning.",
+            "How do you handle missing data?",
+            "What evaluation metrics do you use?"
+        ]
+
+    elif "ai engineer" in role:
+        questions += [
+            "Explain neural networks.",
+            "What is backpropagation?",
+            "How do you optimize deep learning models?"
+        ]
+
+    elif "backend" in role:
+        questions += [
+            "Explain REST API design.",
+            "How do you handle authentication?",
+            "How do you scale backend systems?"
+        ]
+
+    for skill in skill_list[:5]:
+        questions.append(f"What is your experience with {skill}?")
+
+    questions += [
+        "Describe a challenging project.",
+        "How do you solve problems?",
+        "Why should we hire you?"
+    ]
+
+    return questions
 
 # =========================
 # CSS
@@ -397,68 +437,7 @@ if st.button("Analyze Candidates"):
                 questions = generate_role_based_questions(r["role"], r["skills"])
                 for q in questions:
                     st.write("👉 " + q)
-
-from config import SKILLS_PATH
-# =========================
-# 🎤 INTERVIEW QUESTIONS FUNCTION
-# =========================
-def generate_role_based_questions(role, skills):
-    role = role.lower()
-    skill_list = list(skills.keys()) if isinstance(skills, dict) else skills
-
-    questions = []
-
-    if "data scientist" in role:
-        questions += [
-            "Explain supervised vs unsupervised learning.",
-            "How do you handle missing data?",
-            "What evaluation metrics do you use?",
-            "Explain bias-variance tradeoff."
-        ]
-
-    elif "ai engineer" in role:
-        questions += [
-            "Explain neural networks.",
-            "What is backpropagation?",
-            "How do you optimize deep learning models?",
-            "What frameworks have you used?"
-        ]
-
-    elif "backend" in role:
-        questions += [
-            "Explain REST API design.",
-            "How do you handle authentication?",
-            "What is database normalization?",
-            "How do you scale backend systems?"
-        ]
-
-    elif "frontend" in role:
-        questions += [
-            "Explain React lifecycle.",
-            "State vs props?",
-            "How do you optimize UI performance?",
-            "Explain responsive design."
-        ]
-
-    elif "data analyst" in role:
-        questions += [
-            "Explain SQL joins.",
-            "How do you clean data?",
-            "What tools do you use?",
-            "How do you derive insights?"
-        ]
-
-    for skill in skill_list[:5]:
-        questions.append(f"What is your experience with {skill}?")
-
-    questions += [
-        "Describe a challenging project.",
-        "How do you solve problems?",
-        "Tell me about a failure.",
-        "Why should we hire you?"
-    ]
-
-    return questions
+                    
 
 # =========================
 # DOWNLOAD SHORTLIST
