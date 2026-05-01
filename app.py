@@ -394,7 +394,7 @@ if st.button("Analyze Candidates"):
                 st.markdown("---")
 
                 st.markdown("### 🎤 Interview Questions")
-                questions = generate_questions(r["skills"], r["role"])
+                questions = generate_role_based_questions(r["role"], r["skills"])
                 for q in questions:
                     st.write("👉 " + q)
 
