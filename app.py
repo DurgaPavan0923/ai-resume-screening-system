@@ -164,6 +164,78 @@ def load_css():
     </style>
     """, unsafe_allow_html=True)
 
+
+    st.markdown("""
+    <style>
+    
+    /* =========================
+       LIGHT MODE FIX ONLY
+       ========================= */
+    @media (prefers-color-scheme: light) {
+    
+        /* Background */
+        .stApp {
+            background: #f5f7fa !important;
+        }
+    
+        /* Fix text visibility */
+        body, p, span, label {
+            color: #111 !important;
+        }
+    
+        /* Title stays neon but readable */
+        .main-title {
+            color: #00bcd4 !important;
+            text-shadow: none !important;
+        }
+    
+        .subtitle {
+            color: #333 !important;
+        }
+    
+        /* Cards become solid white instead of glass */
+        .card {
+            background: #ffffff !important;
+            color: #111 !important;
+            border: 1px solid #ddd !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+    
+        /* Inputs */
+        textarea, input {
+            background: #ffffff !important;
+            color: #111 !important;
+            border: 1px solid #ccc !important;
+        }
+    
+        /* File uploader */
+        .stFileUploader {
+            background: #ffffff !important;
+            color: #111 !important;
+        }
+    
+        /* Sidebar fix */
+        section[data-testid="stSidebar"] {
+            background: #ffffff !important;
+            color: #111 !important;
+        }
+    
+        /* Expander */
+        .st-expander {
+            color: #111 !important;
+        }
+    
+        /* Buttons stay nice */
+        .stButton>button {
+            background: linear-gradient(135deg, #00bcd4, #0072ff);
+            color: white;
+            box-shadow: none;
+        }
+    }
+    
+    </style>
+    """, unsafe_allow_html=True)
+
 # =========================
 # CONFIG
 # =========================
