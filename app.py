@@ -66,7 +66,7 @@ def load_css():
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&display=swap');
 
     /* =========================
-       BACKGROUND ANIMATION
+       GLOBAL BACKGROUND ANIMATION
        ========================= */
     .stApp::before {
         content: "";
@@ -75,129 +75,69 @@ def load_css():
         height: 200%;
         top: -50%;
         left: -50%;
-        background: radial-gradient(circle at 20% 20%, #00e6ff22, transparent),
-                    radial-gradient(circle at 80% 80%, #0072ff22, transparent);
+        background: radial-gradient(circle at 20% 20%, rgba(0,230,255,0.15), transparent),
+                    radial-gradient(circle at 80% 80%, rgba(0,114,255,0.15), transparent);
         animation: moveBg 15s linear infinite;
         z-index: -1;
     }
 
     @keyframes moveBg {
         0% { transform: translate(0, 0); }
-        50% { transform: translate(50px, 50px); }
+        50% { transform: translate(40px, 40px); }
         100% { transform: translate(0, 0); }
     }
 
     /* =========================
-       DARK THEME (UNCHANGED LOOK)
+       LIGHT THEME (DEFAULT)
        ========================= */
-    @media (prefers-color-scheme: dark) {
-
-        .stApp {
-            background: #0f2027 !important;
-            color: white;
-        }
-
-        .card {
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-        }
-
-        textarea, input {
-            background: rgba(255,255,255,0.08) !important;
-            color: white !important;
-        }
-
-        section[data-testid="stSidebar"] {
-            background: rgba(255,255,255,0.08) !important;
-        }
+    .stApp {
+        background: #f5f7fa !important;
+        color: #111 !important;
+        font-family: 'Inter', sans-serif;
     }
 
-    /* =========================
-       LIGHT THEME FIX (STRONG OVERRIDE)
-       ========================= */
-    @media (prefers-color-scheme: light) {
-
-        .stApp, .stApp > div {
-            background: #f5f7fa !important;
-            color: #111 !important;
-        }
-
-        /* TEXT FIX */
-        h1, h2, h3, h4, p, span, label {
-            color: #111 !important;
-        }
-
-        /* TITLE */
-        .main-title {
-            color: #00bcd4 !important;
-            text-shadow: none !important;
-        }
-
-        .subtitle {
-            color: #444 !important;
-        }
-
-        /* CARDS */
-        .card {
-            background: white !important;
-            color: #111 !important;
-            border: 1px solid #ddd !important;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-        }
-
-        /* INPUT FIX */
-        textarea, input, .stTextInput, .stFileUploader {
-            background: white !important;
-            color: #111 !important;
-            border: 1px solid #ccc !important;
-        }
-
-        /* SIDEBAR */
-        section[data-testid="stSidebar"] {
-            background: white !important;
-            color: #111 !important;
-        }
-
-        /* BUTTON */
-        .stButton>button {
-            background: linear-gradient(135deg, #00bcd4, #0072ff);
-            color: white;
-            box-shadow: none;
-        }
+    body, p, span, label {
+        color: #111 !important;
     }
 
-    /* =========================
-       COMMON UI
-       ========================= */
-
-    .main-title {
-        font-family: 'Orbitron', sans-serif;
-        font-size: 50px;
-        text-shadow: 0px 0px 20px rgba(0,255,255,0.6);
-    }
-
-    .subtitle {
-        font-family: 'Poppins', sans-serif;
-        font-size: 18px;
-    }
-
+    /* Cards */
     .card {
+        background: #ffffff !important;
+        color: #111 !important;
         border-radius: 16px;
         padding: 20px;
         margin: 12px;
+        border: 1px solid #ddd;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
         transition: 0.3s ease;
     }
 
     .card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,255,255,0.25);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
     }
 
+    /* Inputs */
+    textarea, input, .stTextInput, .stFileUploader {
+        background: #ffffff !important;
+        color: #111 !important;
+        border-radius: 10px !important;
+        border: 1px solid #ccc !important;
+    }
+
+    /* Sidebar */
+    section[data-testid="stSidebar"] {
+        background: #ffffff !important;
+        color: #111 !important;
+    }
+
+    /* Buttons */
     .stButton>button {
+        background: linear-gradient(135deg, #00bcd4, #0072ff);
+        color: white;
         border-radius: 30px;
         padding: 10px 20px;
+        border: none;
         font-weight: bold;
         transition: 0.3s;
     }
@@ -206,9 +146,95 @@ def load_css():
         transform: scale(1.05);
     }
 
+    /* Titles */
+    .main-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 50px;
+        color: #00bcd4 !important;
+        text-shadow: none;
+    }
+
+    .subtitle {
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+        color: #333 !important;
+    }
+
+    h1, h2, h3 {
+        color: #00bcd4 !important;
+    }
+
+    /* =========================
+       DARK THEME (STREAMLIT)
+       ========================= */
+    html[data-theme="dark"] .stApp {
+        background: #0f2027 !important;
+        color: white !important;
+    }
+
+    html[data-theme="dark"] body,
+    html[data-theme="dark"] p,
+    html[data-theme="dark"] span,
+    html[data-theme="dark"] label {
+        color: white !important;
+    }
+
+    /* Glass Cards */
+    html[data-theme="dark"] .card {
+        background: rgba(255,255,255,0.08) !important;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white !important;
+        box-shadow: none;
+    }
+
+    html[data-theme="dark"] .card:hover {
+        box-shadow: 0 8px 25px rgba(0,255,255,0.25);
+    }
+
+    /* Inputs */
+    html[data-theme="dark"] textarea,
+    html[data-theme="dark"] input,
+    html[data-theme="dark"] .stTextInput,
+    html[data-theme="dark"] .stFileUploader {
+        background: rgba(255,255,255,0.08) !important;
+        color: white !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+    }
+
+    /* Sidebar */
+    html[data-theme="dark"] section[data-testid="stSidebar"] {
+        background: rgba(255,255,255,0.08) !important;
+        color: white !important;
+    }
+
+    /* Buttons */
+    html[data-theme="dark"] .stButton>button {
+        background: linear-gradient(135deg, #00e6ff, #0072ff);
+        box-shadow: 0 0 10px rgba(0,255,255,0.5);
+    }
+
+    html[data-theme="dark"] .stButton>button:hover {
+        box-shadow: 0 0 20px rgba(0,255,255,0.8);
+    }
+
+    /* Titles */
+    html[data-theme="dark"] .main-title {
+        color: #00e6ff !important;
+        text-shadow: 0px 0px 20px rgba(0,255,255,0.8);
+    }
+
+    html[data-theme="dark"] .subtitle {
+        color: #ccc !important;
+    }
+
+    /* Expander fix */
+    .st-expander {
+        color: inherit !important;
+    }
+
     </style>
-    """, unsafe_allow_html=True)
-    
+    """, unsafe_allow_html=True)    
 
 # =========================
 # CONFIG
