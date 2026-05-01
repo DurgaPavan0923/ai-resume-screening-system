@@ -65,59 +65,128 @@ def load_css():
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&display=swap');
 
-    /* ===== THEME VARIABLES ===== */
-    :root {
-        --bg-color: #f5f7fa;
-        --text-color: #111;
-        --card-bg: rgba(255,255,255,0.9);
-        --border-color: rgba(0,0,0,0.1);
-        --accent: #00e6ff;
+    /* =========================
+       BACKGROUND ANIMATION
+       ========================= */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        width: 200%;
+        height: 200%;
+        top: -50%;
+        left: -50%;
+        background: radial-gradient(circle at 20% 20%, #00e6ff22, transparent),
+                    radial-gradient(circle at 80% 80%, #0072ff22, transparent);
+        animation: moveBg 15s linear infinite;
+        z-index: -1;
     }
 
+    @keyframes moveBg {
+        0% { transform: translate(0, 0); }
+        50% { transform: translate(50px, 50px); }
+        100% { transform: translate(0, 0); }
+    }
+
+    /* =========================
+       DARK THEME (UNCHANGED LOOK)
+       ========================= */
     @media (prefers-color-scheme: dark) {
-        :root {
-            --bg-color: #0f2027;
-            --text-color: #ffffff;
-            --card-bg: rgba(255,255,255,0.08);
-            --border-color: rgba(255,255,255,0.2);
-            --accent: #00e6ff;
+
+        .stApp {
+            background: #0f2027 !important;
+            color: white;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        textarea, input {
+            background: rgba(255,255,255,0.08) !important;
+            color: white !important;
+        }
+
+        section[data-testid="stSidebar"] {
+            background: rgba(255,255,255,0.08) !important;
         }
     }
 
-    /* ===== GLOBAL BACKGROUND ===== */
-    .stApp {
-        background: var(--bg-color);
-        color: var(--text-color);
+    /* =========================
+       LIGHT THEME FIX (STRONG OVERRIDE)
+       ========================= */
+    @media (prefers-color-scheme: light) {
+
+        .stApp, .stApp > div {
+            background: #f5f7fa !important;
+            color: #111 !important;
+        }
+
+        /* TEXT FIX */
+        h1, h2, h3, h4, p, span, label {
+            color: #111 !important;
+        }
+
+        /* TITLE */
+        .main-title {
+            color: #00bcd4 !important;
+            text-shadow: none !important;
+        }
+
+        .subtitle {
+            color: #444 !important;
+        }
+
+        /* CARDS */
+        .card {
+            background: white !important;
+            color: #111 !important;
+            border: 1px solid #ddd !important;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+
+        /* INPUT FIX */
+        textarea, input, .stTextInput, .stFileUploader {
+            background: white !important;
+            color: #111 !important;
+            border: 1px solid #ccc !important;
+        }
+
+        /* SIDEBAR */
+        section[data-testid="stSidebar"] {
+            background: white !important;
+            color: #111 !important;
+        }
+
+        /* BUTTON */
+        .stButton>button {
+            background: linear-gradient(135deg, #00bcd4, #0072ff);
+            color: white;
+            box-shadow: none;
+        }
     }
 
-    /* ===== TITLE ===== */
+    /* =========================
+       COMMON UI
+       ========================= */
+
     .main-title {
         font-family: 'Orbitron', sans-serif;
         font-size: 50px;
-        color: var(--accent) !important;
-        text-shadow: 0px 0px 15px rgba(0,255,255,0.5);
+        text-shadow: 0px 0px 20px rgba(0,255,255,0.6);
     }
 
     .subtitle {
         font-family: 'Poppins', sans-serif;
         font-size: 18px;
-        color: var(--text-color) !important;
     }
 
-    /* ===== HEADINGS ===== */
-    h1, h2, h3, h4 {
-        color: var(--accent) !important;
-    }
-
-    /* ===== GLASS CARD ===== */
     .card {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
         border-radius: 16px;
         padding: 20px;
         margin: 12px;
-        border: 1px solid var(--border-color);
-        color: var(--text-color);
         transition: 0.3s ease;
     }
 
@@ -126,115 +195,20 @@ def load_css():
         box-shadow: 0 8px 25px rgba(0,255,255,0.25);
     }
 
-    /* ===== INPUT FIELDS ===== */
-    textarea, .stTextInput, .stFileUploader {
-        background-color: var(--card-bg) !important;
-        color: var(--text-color) !important;
-        border-radius: 10px !important;
-    }
-
-    /* ===== BUTTON ===== */
     .stButton>button {
-        background: linear-gradient(135deg, #00e6ff, #0072ff);
-        color: white;
         border-radius: 30px;
         padding: 10px 20px;
-        border: none;
         font-weight: bold;
-        box-shadow: 0 0 10px rgba(0,255,255,0.5);
         transition: 0.3s;
     }
 
     .stButton>button:hover {
         transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(0,255,255,0.8);
-    }
-
-    /* ===== SIDEBAR FIX ===== */
-    section[data-testid="stSidebar"] {
-        background: var(--card-bg) !important;
-        color: var(--text-color);
-    }
-
-    /* ===== EXPANDER FIX ===== */
-    .st-expander {
-        color: var(--text-color) !important;
     }
 
     </style>
     """, unsafe_allow_html=True)
-
-
-    st.markdown("""
-    <style>
     
-    /* =========================
-       LIGHT MODE FIX ONLY
-       ========================= */
-    @media (prefers-color-scheme: light) {
-    
-        /* Background */
-        .stApp {
-            background: #f5f7fa !important;
-        }
-    
-        /* Fix text visibility */
-        body, p, span, label {
-            color: #111 !important;
-        }
-    
-        /* Title stays neon but readable */
-        .main-title {
-            color: #00bcd4 !important;
-            text-shadow: none !important;
-        }
-    
-        .subtitle {
-            color: #333 !important;
-        }
-    
-        /* Cards become solid white instead of glass */
-        .card {
-            background: #ffffff !important;
-            color: #111 !important;
-            border: 1px solid #ddd !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        }
-    
-        /* Inputs */
-        textarea, input {
-            background: #ffffff !important;
-            color: #111 !important;
-            border: 1px solid #ccc !important;
-        }
-    
-        /* File uploader */
-        .stFileUploader {
-            background: #ffffff !important;
-            color: #111 !important;
-        }
-    
-        /* Sidebar fix */
-        section[data-testid="stSidebar"] {
-            background: #ffffff !important;
-            color: #111 !important;
-        }
-    
-        /* Expander */
-        .st-expander {
-            color: #111 !important;
-        }
-    
-        /* Buttons stay nice */
-        .stButton>button {
-            background: linear-gradient(135deg, #00bcd4, #0072ff);
-            color: white;
-            box-shadow: none;
-        }
-    }
-    
-    </style>
-    """, unsafe_allow_html=True)
 
 # =========================
 # CONFIG
