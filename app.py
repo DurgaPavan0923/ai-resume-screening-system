@@ -63,132 +63,106 @@ def generate_role_based_questions(role, skills):
 def load_css():
     st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&family=Inter:wght@400;500&display=swap');
 
-    /* ===== GOOGLE FONTS ===== */
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Inter:wght@400;500;600&family=Poppins:wght@400;500&display=swap');
-
-    /* ===== GLOBAL ===== */
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+    /* ===== THEME VARIABLES ===== */
+    :root {
+        --bg-color: #f5f7fa;
+        --text-color: #111;
+        --card-bg: rgba(255,255,255,0.9);
+        --border-color: rgba(0,0,0,0.1);
+        --accent: #00e6ff;
     }
 
-    /* ===== BACKGROUND (ANIMATED GRADIENT) ===== */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg-color: #0f2027;
+            --text-color: #ffffff;
+            --card-bg: rgba(255,255,255,0.08);
+            --border-color: rgba(255,255,255,0.2);
+            --accent: #00e6ff;
+        }
+    }
+
+    /* ===== GLOBAL BACKGROUND ===== */
     .stApp {
-        background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #0f2027);
-        background-size: 400% 400%;
-        animation: gradientBG 12s ease infinite;
-        color: white;
+        background: var(--bg-color);
+        color: var(--text-color);
     }
 
-    @keyframes gradientBG {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    /* ===== MAIN TITLE ===== */
+    /* ===== TITLE ===== */
     .main-title {
         font-family: 'Orbitron', sans-serif;
-        font-size: 52px;
-        font-weight: 600;
-        background: linear-gradient(90deg, #00e6ff, #00ffcc);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center;
-        margin-bottom: 10px;
+        font-size: 50px;
+        color: var(--accent) !important;
+        text-shadow: 0px 0px 15px rgba(0,255,255,0.5);
     }
 
-    /* ===== SUBTITLE ===== */
     .subtitle {
         font-family: 'Poppins', sans-serif;
         font-size: 18px;
-        text-align: center;
-        color: #cfd8dc !important;
-        margin-bottom: 20px;
-    }
-
-    /* ===== CARDS ===== */
-    .card {
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border-radius: 18px;
-        padding: 20px;
-        margin: 12px 0;
-        border: 1px solid rgba(255,255,255,0.15);
-        color: white;
-        transition: all 0.3s ease;
-    }
-
-    .card:hover {
-        transform: translateY(-6px) scale(1.01);
-        box-shadow: 0 8px 30px rgba(0,255,255,0.25);
+        color: var(--text-color) !important;
     }
 
     /* ===== HEADINGS ===== */
-    h1, h2, h3 {
-        font-family: 'Poppins', sans-serif;
-        color: #00e6ff !important;
+    h1, h2, h3, h4 {
+        color: var(--accent) !important;
+    }
+
+    /* ===== GLASS CARD ===== */
+    .card {
+        background: var(--card-bg);
+        backdrop-filter: blur(12px);
+        border-radius: 16px;
+        padding: 20px;
+        margin: 12px;
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        transition: 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,255,255,0.25);
+    }
+
+    /* ===== INPUT FIELDS ===== */
+    textarea, .stTextInput, .stFileUploader {
+        background-color: var(--card-bg) !important;
+        color: var(--text-color) !important;
+        border-radius: 10px !important;
     }
 
     /* ===== BUTTON ===== */
-    .stButton > button {
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
+    .stButton>button {
+        background: linear-gradient(135deg, #00e6ff, #0072ff);
         color: white;
         border-radius: 30px;
-        padding: 10px 25px;
-        font-weight: 600;
+        padding: 10px 20px;
         border: none;
-        transition: 0.3s ease;
-        box-shadow: 0 0 12px rgba(0,198,255,0.6);
+        font-weight: bold;
+        box-shadow: 0 0 10px rgba(0,255,255,0.5);
+        transition: 0.3s;
     }
 
-    .stButton > button:hover {
+    .stButton>button:hover {
         transform: scale(1.05);
-        box-shadow: 0 0 25px rgba(0,198,255,1);
+        box-shadow: 0 0 20px rgba(0,255,255,0.8);
     }
 
-    /* ===== INPUT BOX ===== */
-    textarea, input {
-        background: rgba(255,255,255,0.08) !important;
-        color: white !important;
-        border-radius: 10px !important;
-        border: 1px solid rgba(255,255,255,0.2) !important;
+    /* ===== SIDEBAR FIX ===== */
+    section[data-testid="stSidebar"] {
+        background: var(--card-bg) !important;
+        color: var(--text-color);
     }
 
-    /* ===== METRICS ===== */
-    [data-testid="stMetric"] {
-        background: rgba(255,255,255,0.08);
-        padding: 15px;
-        border-radius: 15px;
-        backdrop-filter: blur(10px);
-    }
-
-    /* ===== SCROLLBAR ===== */
-    ::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: #00c6ff;
-        border-radius: 10px;
-    }
-
-    /* ===== EXPANDERS ===== */
+    /* ===== EXPANDER FIX ===== */
     .st-expander {
-        background: rgba(255,255,255,0.05);
-        border-radius: 10px;
-        padding: 8px;
-    }
-
-    /* ===== TEXT VISIBILITY FIX ===== */
-    label, p, span, div {
-        color: #e0f7fa !important;
+        color: var(--text-color) !important;
     }
 
     </style>
     """, unsafe_allow_html=True)
-
 
 # =========================
 # CONFIG
@@ -205,7 +179,6 @@ def get_model():
     return train_model()
 
 model, vectorizer = get_model()
-
 
 # =========================
 # HELPERS
